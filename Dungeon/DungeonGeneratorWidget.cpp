@@ -1,0 +1,73 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Dungeon/DungeonGeneratorWidget.h"
+
+#include "DungeonManager.h"
+#include "PortFolio.h"
+#include "Components/Button.h"
+#include "Components/CanvasPanel.h"
+#include "Components/EditableText.h"
+#include "Components/TextBlock.h"
+#include "Misc/DefaultValueHelper.h"
+
+void UDungeonGeneratorWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// 오브젝트 찾기
+	ProgressButton = Cast<UButton>(GetWidgetFromName(TEXT("ProgressButton")));
+	WidthSizeText = Cast<UEditableText>(GetWidgetFromName(TEXT("WidthSizeText")));
+	HeightSizeText = Cast<UEditableText>(GetWidgetFromName(TEXT("HeightSizeText")));
+	GridCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("GridCanvas")));
+	ButtonText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ButtonText")));
+	SplitCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("SplitCanvas")));
+	SplitCountText = Cast<UEditableText>(GetWidgetFromName(TEXT("SplitCountText")));
+
+	// 델리게이트 등록
+	ProgressButton->OnClicked.AddDynamic(this, &UDungeonGeneratorWidget::OnClickNextButton);
+}
+
+void UDungeonGeneratorWidget::OnClickNextButton()
+{
+	// 생성
+	if(Phase == 0)
+	{
+		int _Width; int _Height;
+		FDefaultValueHelper::ParseInt(WidthSizeText->GetText().ToString(), _Width);
+		FDefaultValueHelper::ParseInt(HeightSizeText->GetText().ToString(), _Height);
+		UDungeonManager::Instance()->GenerateGrid(_Width, _Height);
+		
+		GridCanvas->SetVisibility(ESlateVisibility::Hidden);
+		SplitCanvas->SetVisibility(ESlateVisibility::Visible);
+		ButtonText->SetText(FText::FromString(TEXT("분할")));
+		Phase++;
+	}
+	// 1. 분할
+	else if(Phase == 1)
+	{
+		int _SplitCount;
+		FDefaultValueHelper::ParseInt(SplitCountText->GetText().ToString(), _SplitCount);
+		UDungeonManager::Instance()->StartSplitTree(_SplitCount);
+		
+		SplitCanvas->SetVisibility(ESlateVisibility::Hidden);
+		ButtonText->SetText(FText::FromString(TEXT("진행")));
+		Phase++;
+	}
+	// 2. 그리기
+	else if(Phase == 2) 
+	{
+		bool _Flag = UDungeonManager::Instance()->VisualizeTree(Visualize);
+		if(_Flag)
+			Visualize++;
+		else
+			Phase++;
+	}
+	// 3. 방 생성
+	else if(Phase == 3)
+	{
+		UDungeonManager::Instance()->StartGenerateRoom();
+		Phase++;
+	}
+	
+}
