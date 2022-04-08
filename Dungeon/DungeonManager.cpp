@@ -81,12 +81,13 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 
 	// Root 노드 생성
 	RootNode = new FTreeNode(0, 0, _Width, _Height);
+	RootNode->bIsLeaf = false;
 }
 
 void UDungeonManager::StartSplitTree(int _Count)
 {
 	// Depth Array 만들기
-	for(int i = 0; i < _Count; i++)
+	for(int i = 0; i <= _Count; i++)
 	{
 		TArray<FTreeNode*> _Arr;
 		TreeDepthLists.Add(_Arr);
@@ -98,18 +99,18 @@ void UDungeonManager::StartSplitTree(int _Count)
 void UDungeonManager::SplitTree(FTreeNode* _TreeNode, int _Depth)
 {
 	// 끝 감지 조건: Count만큼 || 최소 사이즈(?)
-	if(_Depth == 0)
+	if(_Depth == 0 || _TreeNode->Rect.Width <= 3 || _TreeNode->Rect.Height <= 3)
 	{
 		_TreeNode->bIsLeaf = true;
+		TreeDepthLists[TreeDepthLists.Num() - _Depth - 1].Add(_TreeNode);
 		return;
 	}
-		
-	if(_TreeNode->Rect.Width <= 3 || _TreeNode->Rect.Height <= 3)
-		return;
+
+	_TreeNode->bIsLeaf = false;
 	
 	// 트리 표시하기
 	LOGTEXT_LOG(TEXT("Dep[%d]:X(%d), Y(%d), Width(%d), Height(%d)"), _Depth, _TreeNode->Rect.X, _TreeNode->Rect.Y, _TreeNode->Rect.Width, _TreeNode->Rect.Height);
-	TreeDepthLists[TreeDepthLists.Num() - _Depth].Add(_TreeNode);
+	//TreeDepthLists[TreeDepthLists.Num() - _Depth].Add(_TreeNode);
 
 	// 랜덤 분할 비율 결정
 	float _RandRatio = FMath::RandRange(0.4f, 0.6f);
@@ -142,18 +143,16 @@ void UDungeonManager::SplitTree(FTreeNode* _TreeNode, int _Depth)
 
 bool UDungeonManager::VisualizeTree(int _Depth)
 {
-	UKismetSystemLibrary::FlushPersistentDebugLines(this);
-	
-	bool _Rand = true;
-	FLinearColor _Color = FLinearColor::White;
+	//UKismetSystemLibrary::FlushPersistentDebugLines(this);
 
-	if(_Depth > TreeDepthLists.Num() - 1)
-		return false;
+	bool _Flag = true;
+	if(_Depth >= TreeDepthLists.Num() - 1)
+		_Flag = false;
 	
 	for (auto _TreeNode : TreeDepthLists[_Depth])
 	{
-		if(_Rand)
-			_Color = FLinearColor::MakeRandomColor();
+		FLinearColor _Color = FLinearColor::MakeRandomColor();
+		
 		// Bottom
 		FVector _BottomStart = FVector(-280.f + _TreeNode->Rect.X * 600.f, _TreeNode->Rect.Y * 600.f - 280.f, 10.f * _Depth);
 		FVector _BottomEnd = FVector(-280.f + (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f, _TreeNode->Rect.Y * 600.f - 280.f, 10.f * _Depth);
@@ -174,7 +173,8 @@ bool UDungeonManager::VisualizeTree(int _Depth)
 		FVector _RightEnd = FVector((_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f - 280.f, (_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, 10.f * _Depth);
 		UKismetSystemLibrary::DrawDebugLine(this, _RightStart, _RightEnd, _Color, 10.f, 100.f);
 	}
-	return true;
+	
+	return _Flag;
 }
 
 void UDungeonManager::StartGenerateRoom()
@@ -184,13 +184,11 @@ void UDungeonManager::StartGenerateRoom()
 
 void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 {
-	if(!_TreeNode->bIsLeaf)
+	if(_TreeNode->bIsLeaf)
 	{
-		GenerateRoom(_TreeNode->Left);
-		GenerateRoom(_TreeNode->Right);
-	}
-	else
-	{
+		LOGAUTO_ERROR;
+		LOGTEXT_LOG(TEXT("%d"), _TreeNode->Rect.X);
+	
 		// 랜덤 방 크기 정하기(최소 2 ~ 최대 (길이-1))
 		int _Width = FMath::RandRange(FMath::RoundToInt(_TreeNode->Rect.Width * 2 / 3), _TreeNode->Rect.Width - 1);
 		_Width = FMath::Clamp(_Width, 2, _TreeNode->Rect.Width - 1);
@@ -207,5 +205,11 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		{
 			_RoomCells[i]->ClearVisualizer();
 		}
+	}
+
+	else
+	{
+		GenerateRoom(_TreeNode->Left);
+		GenerateRoom(_TreeNode->Right);
 	}
 }

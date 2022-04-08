@@ -26,7 +26,7 @@ private:
 	UButton* ProgressButton;
 	UTextBlock* ButtonText;
 	int Phase;
-	int Visualize;
+	int Visualize = 0;
 
 	// 0. 그리드 생성
 private:
