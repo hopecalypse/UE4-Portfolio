@@ -53,7 +53,7 @@ TArray<UDungeonCell*> UDungeonManager::GetCellsInside(FRect _Rect)
 	{
 		for(int x = _Rect.X; x < _Rect.X + _Rect.Width; x++)
 		{
-			_CellArray.Add(CellList.FindRef(FVector2D(x, y)));
+			_CellArray.Add(CellList.FindRef(FVector2D(y, x)));
 		}
 	}
 	return _CellArray;
@@ -105,12 +105,11 @@ void UDungeonManager::SplitTree(FTreeNode* _TreeNode, int _Depth)
 		TreeDepthLists[TreeDepthLists.Num() - _Depth - 1].Add(_TreeNode);
 		return;
 	}
-
-	_TreeNode->bIsLeaf = false;
 	
 	// 트리 표시하기
+	_TreeNode->bIsLeaf = false;
+	TreeDepthLists[TreeDepthLists.Num() - _Depth - 1].Add(_TreeNode);
 	LOGTEXT_LOG(TEXT("Dep[%d]:X(%d), Y(%d), Width(%d), Height(%d)"), _Depth, _TreeNode->Rect.X, _TreeNode->Rect.Y, _TreeNode->Rect.Width, _TreeNode->Rect.Height);
-	//TreeDepthLists[TreeDepthLists.Num() - _Depth].Add(_TreeNode);
 
 	// 랜덤 분할 비율 결정
 	float _RandRatio = FMath::RandRange(0.4f, 0.6f);
@@ -148,6 +147,7 @@ bool UDungeonManager::VisualizeTree(int _Depth)
 	bool _Flag = true;
 	if(_Depth >= TreeDepthLists.Num() - 1)
 		_Flag = false;
+	//LOGTEXT_LOG(TEXT("Depth(%d) Visualize(Num:%d)"), _Depth, TreeDepthLists[_Depth].Num());
 	
 	for (auto _TreeNode : TreeDepthLists[_Depth])
 	{
@@ -186,19 +186,21 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 {
 	if(_TreeNode->bIsLeaf)
 	{
-		LOGAUTO_ERROR;
-		LOGTEXT_LOG(TEXT("%d"), _TreeNode->Rect.X);
+		LOGTEXT_LOG(TEXT("방 생성 Rect: %d-%d, %d-%d"), _TreeNode->Rect.X, _TreeNode->Rect.Width, _TreeNode->Rect.Y, _TreeNode->Rect.Height);
 	
 		// 랜덤 방 크기 정하기(최소 2 ~ 최대 (길이-1))
 		int _Width = FMath::RandRange(FMath::RoundToInt(_TreeNode->Rect.Width * 2 / 3), _TreeNode->Rect.Width - 1);
+		//int _Width = FMath::RandRange(_TreeNode->Rect.Width / 2, _TreeNode->Rect.Width - 1);
 		_Width = FMath::Clamp(_Width, 2, _TreeNode->Rect.Width - 1);
-		int _Height = FMath::RandRange(FMath::RoundToInt((_TreeNode->Rect.Height * 2) / 3), _TreeNode->Rect.Height - 1);
+		int _Height = FMath::RandRange(FMath::RoundToInt(_TreeNode->Rect.Height *2 / 3), _TreeNode->Rect.Height - 1);
+		//int _Height = FMath::RandRange(_TreeNode->Rect.Height / 2, _TreeNode->Rect.Height - 1);
 		_Height = FMath::Clamp(_Height, 2, _TreeNode->Rect.Width - 1);
 
 		// 랜덤 위치
-		int _X = FMath::RandRange(_TreeNode->Rect.X, _TreeNode->Rect.X + _TreeNode->Rect.Width - _Width);
-		int _Y = FMath::RandRange(_TreeNode->Rect.Y, _TreeNode->Rect.Y + _TreeNode->Rect.Height - _Height);
+		int _X = _TreeNode->Rect.X + FMath::RandRange(0, _TreeNode->Rect.Width - _Width);
+		int _Y = _TreeNode->Rect.Y + FMath::RandRange(0, _TreeNode->Rect.Height - _Height);
 
+		LOGTEXT_WARN(TEXT("방 결과 Rect: %d-%d, %d-%d"), _X, _Width, _Y, _Height);
 		// 해당되는 Cell들 방으로 변환
 		TArray<UDungeonCell*> _RoomCells = GetCellsInside(FRect(_X, _Y, _Width, _Height));
 		for(int i = 0; i < _RoomCells.Num(); i++)
