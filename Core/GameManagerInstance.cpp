@@ -5,6 +5,7 @@
 
 #include "Dungeon/DungeonManager.h"
 #include "Manager/EffectManager.h"
+#include "Manager/PathManager.h"
 #include "Manager/SoundManager.h"
 
 void UGameManagerInstance::Init()
@@ -14,6 +15,7 @@ void UGameManagerInstance::Init()
 	// 매니저들 Init
 	UEffectManager::GenerateInst(this);
 	UDungeonManager::GenerateInst(this);
+	UPathManager::GenerateInst(this);
 }
 
 void UGameManagerInstance::Shutdown()
@@ -23,6 +25,7 @@ void UGameManagerInstance::Shutdown()
 	// 매니저들 Destroy
 	UEffectManager::DestroyManager();
 	UDungeonManager::DestroyManager();
+	UPathManager::DestroyManager();
 }
 
 void UGameManagerInstance::SelectPlayerClass(EPlayerClass _SelectClass)

@@ -108,5 +108,12 @@ public:
 public:
 	void StartGenerateRoom();
 	void GenerateRoom(FTreeNode* _TreeNode);
+	bool IsNotRoom(FVector2D _Matrix);
+
+	// 3. Cell 레벨 생성하기
+public:
+	void UpdateCells();
+	
+	void Test();
 	
 };

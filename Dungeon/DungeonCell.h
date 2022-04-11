@@ -10,17 +10,6 @@
  * 
  */
 
-UENUM(BlueprintType)
-enum class ECellType : uint8
-{
-	Floor,
-	LeftWall,
-	TopWall,
-	RightWall,
-	BottomWall,
-};
-
-
 UCLASS()
 class PORTFOLIO_API UDungeonCell : public UObject
 {
@@ -32,6 +21,16 @@ public:
 	FVector Location;
 	AActor* Visualizer;
 
+	// 던전 변수(할당용)
+public:
+	bool bRoom;
+	bool bRoad;
+	bool bFloor;
+	bool bLeftWall;
+	bool bTopWall;
+	bool bRightWall;
+	bool bBottomWall;
+
 	// 던전 레벨 오브젝트들
 public:
 	AActor* Floor;
@@ -39,13 +38,15 @@ public:
 	AActor* TopWall;
 	AActor* RightWall;
 	AActor* BottomWall;
+	TArray<AActor*> LevelActors;
 
 	// 초기화
 public:
 	void InitCell(int _X, int _Y);
-
-	// 방 생성
+	
 	void ClearVisualizer();
-	void GenerateRoom(ECellType _Type, FActorSpawnParameters _SpawnParam = {});
+	
+	void GenerateLevel();
+	void SpawnLevelActors();
 	
 };

@@ -22,6 +22,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> Floor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AActor> Wall;
+	TSubclassOf<AActor> LeftWall;
 	
 };

@@ -53,7 +53,7 @@ TArray<UDungeonCell*> UDungeonManager::GetCellsInside(FRect _Rect)
 	{
 		for(int x = _Rect.X; x < _Rect.X + _Rect.Width; x++)
 		{
-			_CellArray.Add(CellList.FindRef(FVector2D(y, x)));
+			_CellArray.Add(CellList.FindRef(FVector2D(x, y)));
 		}
 	}
 	return _CellArray;
@@ -154,23 +154,23 @@ bool UDungeonManager::VisualizeTree(int _Depth)
 		FLinearColor _Color = FLinearColor::MakeRandomColor();
 		
 		// Bottom
-		FVector _BottomStart = FVector(-280.f + _TreeNode->Rect.X * 600.f, _TreeNode->Rect.Y * 600.f - 280.f, 10.f * _Depth);
-		FVector _BottomEnd = FVector(-280.f + (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f, _TreeNode->Rect.Y * 600.f - 280.f, 10.f * _Depth);
+		FVector _BottomStart = FVector(_TreeNode->Rect.Y * 600.f - 280.f, -280.f + _TreeNode->Rect.X * 600.f, 10.f * _Depth);
+		FVector _BottomEnd = FVector(_TreeNode->Rect.Y * 600.f - 280.f, -280.f + (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f, 10.f * _Depth);
 		UKismetSystemLibrary::DrawDebugLine(this,  _BottomStart, _BottomEnd, _Color, 10.f, 100.f);
 		
 		// Top
-		FVector _TopStart = FVector(-280.f + _TreeNode->Rect.X * 600.f, (_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, 10.f * _Depth);
-		FVector _TopEnd = FVector(-280.f + (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f, (_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, 10.f * _Depth);
+		FVector _TopStart = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, -280.f + _TreeNode->Rect.X * 600.f, 10.f * _Depth);
+		FVector _TopEnd = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, -280.f + (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f, 10.f * _Depth);
 		UKismetSystemLibrary::DrawDebugLine(this, _TopStart, _TopEnd, _Color, 10.f, 100.f);
 		
 		// Left
-		FVector _LeftStart = FVector(_TreeNode->Rect.X * 600.f - 280.f, _TreeNode->Rect.Y * 600.f - 280.f, 10.f * _Depth);
-		FVector _LeftEnd = FVector(_TreeNode->Rect.X * 600.f - 280.f, (_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, 10.f * _Depth);
+		FVector _LeftStart = FVector(_TreeNode->Rect.Y * 600.f - 280.f, _TreeNode->Rect.X * 600.f - 280.f, 10.f * _Depth);
+		FVector _LeftEnd = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, _TreeNode->Rect.X * 600.f - 280.f, 10.f * _Depth);
 		UKismetSystemLibrary::DrawDebugLine(this, _LeftStart, _LeftEnd, _Color, 10.f, 100.f);
 		
 		// Right
-		FVector _RightStart = FVector((_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f - 280.f, _TreeNode->Rect.Y * 600.f - 280.f, 10.f * _Depth);
-		FVector _RightEnd = FVector((_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f - 280.f, (_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, 10.f * _Depth);
+		FVector _RightStart = FVector(_TreeNode->Rect.Y * 600.f - 280.f, (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f - 280.f, 10.f * _Depth);
+		FVector _RightEnd = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f - 280.f, 10.f * _Depth);
 		UKismetSystemLibrary::DrawDebugLine(this, _RightStart, _RightEnd, _Color, 10.f, 100.f);
 	}
 	
@@ -189,10 +189,10 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		LOGTEXT_LOG(TEXT("방 생성 Rect: %d-%d, %d-%d"), _TreeNode->Rect.X, _TreeNode->Rect.Width, _TreeNode->Rect.Y, _TreeNode->Rect.Height);
 	
 		// 랜덤 방 크기 정하기(최소 2 ~ 최대 (길이-1))
-		int _Width = FMath::RandRange(FMath::RoundToInt(_TreeNode->Rect.Width * 2 / 3), _TreeNode->Rect.Width - 1);
+		int _Width = FMath::RandRange(FMath::RoundToInt(_TreeNode->Rect.Width / 2), _TreeNode->Rect.Width * 2 / 3);
 		//int _Width = FMath::RandRange(_TreeNode->Rect.Width / 2, _TreeNode->Rect.Width - 1);
 		_Width = FMath::Clamp(_Width, 2, _TreeNode->Rect.Width - 1);
-		int _Height = FMath::RandRange(FMath::RoundToInt(_TreeNode->Rect.Height *2 / 3), _TreeNode->Rect.Height - 1);
+		int _Height = FMath::RandRange(FMath::RoundToInt(_TreeNode->Rect.Height / 2), _TreeNode->Rect.Height * 2 / 3);
 		//int _Height = FMath::RandRange(_TreeNode->Rect.Height / 2, _TreeNode->Rect.Height - 1);
 		_Height = FMath::Clamp(_Height, 2, _TreeNode->Rect.Width - 1);
 
@@ -206,6 +206,7 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		for(int i = 0; i < _RoomCells.Num(); i++)
 		{
 			_RoomCells[i]->ClearVisualizer();
+			_RoomCells[i]->bRoom = true;
 		}
 	}
 
@@ -214,4 +215,32 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		GenerateRoom(_TreeNode->Left);
 		GenerateRoom(_TreeNode->Right);
 	}
+}
+
+bool UDungeonManager::IsNotRoom(FVector2D _Matrix)
+{
+	UDungeonCell* _Cell = CellList.FindRef(_Matrix);
+	if(_Cell == nullptr)
+		return true;
+	else
+	{
+		if(_Cell->bRoom)
+			return false;
+		else
+			return true;
+	}
+}
+
+void UDungeonManager::UpdateCells()
+{
+	for (auto _Cell : CellList)
+	{
+		_Cell.Value->GenerateLevel();
+	}
+}
+
+void UDungeonManager::Test()
+{
+	UDungeonCell* _TestCell = CellList.FindRef(FVector2D(15, 5)); 
+	UKismetSystemLibrary::DrawDebugCapsule(this, _TestCell->Location, 100.f, 100.f, FRotator::ZeroRotator, FLinearColor::Green, 10.f, 50.f);
 }

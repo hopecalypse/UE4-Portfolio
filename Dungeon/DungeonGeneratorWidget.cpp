@@ -63,10 +63,16 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 		else
 			Phase++;
 	}
-	// 3. 방 생성
+	// 3. 방 정하기
 	else if(Phase == 3)
 	{
 		UDungeonManager::Instance()->StartGenerateRoom();
+		Phase++;
+	}
+	// 4. 방 구현
+	else if(Phase == 4)
+	{
+		UDungeonManager::Instance()->UpdateCells();
 		Phase++;
 	}
 	
