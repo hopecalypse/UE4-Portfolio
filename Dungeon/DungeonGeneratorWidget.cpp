@@ -75,5 +75,17 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 		UDungeonManager::Instance()->UpdateCells();
 		Phase++;
 	}
+	// 5. 길 연결
+	else if(Phase == 5)
+	{
+		UDungeonManager::Instance()->StartGenerateRoad();
+		Phase++;
+	}
+	// 6. 방 구현
+	else if(Phase == 6)
+	{
+		UDungeonManager::Instance()->UpdateCells();
+		Phase++;
+	}
 	
 }

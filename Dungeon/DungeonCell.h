@@ -10,6 +10,7 @@
  * 
  */
 
+struct FPathNode;
 UCLASS()
 class PORTFOLIO_API UDungeonCell : public UObject
 {
@@ -39,6 +40,10 @@ public:
 	AActor* RightWall;
 	AActor* BottomWall;
 	TArray<AActor*> LevelActors;
+
+	// 길찾기 관련
+public:
+	TArray<FPathNode*> PathNodes;
 
 	// 초기화
 public:

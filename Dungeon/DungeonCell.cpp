@@ -39,8 +39,9 @@ void UDungeonCell::GenerateLevel()
 	}
 
 	// 2. Road
-	else if(bRoad)
+	if(bRoad)
 	{
+		bFloor = true;
 		
 	}
 	

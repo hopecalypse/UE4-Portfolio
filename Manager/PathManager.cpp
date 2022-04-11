@@ -27,3 +27,4 @@ void UPathManager::DestroyManager()
 		ManagerInstance = nullptr;
 	}
 }
+

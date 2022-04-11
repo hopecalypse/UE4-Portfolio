@@ -87,7 +87,7 @@ public:
 public:
 	int Phase;
 	FTreeNode* RootNode;
-	TMap<FVector2D, UDungeonCell*> CellList;
+	TMap<FVector2D, UDungeonCell*> CellMap;
 	TArray<FTreeNode*> TreeNodeList;
 	TArray<TArray<FTreeNode*>> TreeDepthLists;
 
@@ -110,10 +110,18 @@ public:
 	void GenerateRoom(FTreeNode* _TreeNode);
 	bool IsNotRoom(FVector2D _Matrix);
 
-	// 3. Cell 레벨 생성하기
+	// 4. 길 연결하기
+public:
+	void StartGenerateRoad();
+	void GenerateRoad(FTreeNode* _TreeNode);
+	FVector2D GetRectCenter(FRect _Rect);
+	
+
+	// Cell 레벨 생성하기
 public:
 	void UpdateCells();
-	
 	void Test();
+
+	
 	
 };
