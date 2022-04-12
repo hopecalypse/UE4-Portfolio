@@ -5,6 +5,7 @@
 
 #include "DungeonCell.h"
 #include "DungeonDataAsset.h"
+#include "DungeonRoom.h"
 #include "PortFolio.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Manager/PathManager.h"
@@ -207,6 +208,9 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		// 랜덤 위치
 		int _X = _TreeNode->Rect.X + FMath::RandRange(0, _TreeNode->Rect.Width - _Width);
 		int _Y = _TreeNode->Rect.Y + FMath::RandRange(0, _TreeNode->Rect.Height - _Height);
+
+		// Room 오브젝트 생성하기
+		UDungeonRoom* _Room = NewObject<UDungeonRoom>(this);
 		
 		// 해당되는 Cell들 방으로 변환
 		TArray<UDungeonCell*> _RoomCells = GetCellsInside(FRect(_X, _Y, _Width, _Height));
@@ -214,8 +218,16 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		{
 			_RoomCells[i]->ClearVisualizer();
 			_RoomCells[i]->bRoom = true;
+			
+			_Room->Cells.Add(_RoomCells[i]);
+			_RoomCells[i]->Room = _Room;
 		}
 		
+		// Room의 Rect 할당
+		FRect* _Rect = new FRect(_X, _Y, _Width, _Height);
+		_Room->Rect = _Rect;
+		_Room->CenterCell = CellMap.FindRef(FVector2D(_X + FMath::RoundToInt(_Width / 2), _Y + FMath::RoundToInt(_Height / 2)));
+		//UKismetSystemLibrary::DrawDebugCircle(this, _Room->CenterCell->Location, 100.f, 10.f, FLinearColor::Green, 100.f, 50.f);
 	}
 
 	else
@@ -261,7 +273,7 @@ void UDungeonManager::GenerateRoad(FTreeNode* _TreeNode)
 	{
 		UDungeonCell* _RoadCell = CellMap.FindRef(FVector2D(i, _LeftCenter.Y));
 		_RoadCell->bRoad = true;
-		//UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Blue, FRotator::ZeroRotator, 50.f);
+		UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Blue, FRotator::ZeroRotator, 10.f);
 	}
 
 	// 세로
@@ -269,7 +281,7 @@ void UDungeonManager::GenerateRoad(FTreeNode* _TreeNode)
 	{
 		UDungeonCell* _RoadCell = CellMap.FindRef(FVector2D(_LeftCenter.X, i));
 		_RoadCell->bRoad = true;
-		//UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Red, FRotator::ZeroRotator, 50.f);
+		UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Red, FRotator::ZeroRotator, 10.f);
 	}
 	
 	GenerateRoad(_TreeNode->Left);
@@ -281,6 +293,26 @@ FVector2D UDungeonManager::GetRectCenter(FRect _Rect)
 	return FVector2D(_Rect.X + FMath::RoundToInt(_Rect.Width / 2), _Rect.Y + FMath::RoundToInt(_Rect.Height / 2));
 }
 
+bool UDungeonManager::IsNotRoad(FVector2D _Matrix)
+{
+	UDungeonCell* _Cell = CellMap.FindRef(_Matrix);
+	if(_Cell == nullptr)
+		return true;
+	else
+	{
+		if(_Cell->bRoad)
+			return false;
+		else
+			return true;
+	}
+}
+
+void UDungeonManager::SortRooms()
+{
+	// Room 분류하기(CenterCell) -> 4방향으로, 플레이어 시작/보스방 정하기
+	
+}
+
 void UDungeonManager::UpdateCells()
 {
 	for (auto _Cell : CellMap)
@@ -289,8 +321,3 @@ void UDungeonManager::UpdateCells()
 	}
 }
 
-void UDungeonManager::Test()
-{
-	UDungeonCell* _TestCell = CellMap.FindRef(FVector2D(15, 5)); 
-	UKismetSystemLibrary::DrawDebugCapsule(this, _TestCell->Location, 100.f, 100.f, FRotator::ZeroRotator, FLinearColor::Green, 10.f, 50.f);
-}

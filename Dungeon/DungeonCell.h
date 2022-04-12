@@ -10,6 +10,7 @@
  * 
  */
 
+class UDungeonRoom;
 struct FPathNode;
 UCLASS()
 class PORTFOLIO_API UDungeonCell : public UObject
@@ -21,6 +22,7 @@ public:
 	FVector2D Matrix;
 	FVector Location;
 	AActor* Visualizer;
+	UDungeonRoom* Room;
 
 	// 던전 변수(할당용)
 public:

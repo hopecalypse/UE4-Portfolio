@@ -9,6 +9,7 @@
 #include "Components/CanvasPanel.h"
 #include "Components/EditableText.h"
 #include "Components/TextBlock.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Misc/DefaultValueHelper.h"
 
 void UDungeonGeneratorWidget::NativeConstruct()

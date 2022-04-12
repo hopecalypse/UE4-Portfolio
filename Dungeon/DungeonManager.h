@@ -115,13 +115,14 @@ public:
 	void StartGenerateRoad();
 	void GenerateRoad(FTreeNode* _TreeNode);
 	FVector2D GetRectCenter(FRect _Rect);
-	
+	bool IsNotRoad(FVector2D _Matrix);
 
+	// 5. Room들 분류하기
+public:
+	void SortRooms();
+	
 	// Cell 레벨 생성하기
 public:
 	void UpdateCells();
-	void Test();
-
-	
 	
 };
