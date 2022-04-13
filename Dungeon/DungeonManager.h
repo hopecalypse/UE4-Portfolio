@@ -6,6 +6,9 @@
 #include "UObject/NoExportTypes.h"
 #include "DungeonManager.generated.h"
 
+class APlayableCharacter;
+class UPlayerHUD;
+class UDungeonRoom;
 class UDungeonDataAsset;
 class UDungeonCell;
 /**
@@ -76,6 +79,11 @@ public:
 	static UDungeonManager* Instance();
 	static void DestroyManager();
 
+	// 플레이어 필요 에셋
+public:
+	TSubclassOf<UUserWidget> PlayerHUDBP;
+	UPlayerHUD* PlayerHUD;
+
 	// 던전 Level BP 에셋
 private:
 	UDungeonDataAsset* LevelDataAsset;
@@ -90,10 +98,15 @@ public:
 	TMap<FVector2D, UDungeonCell*> CellMap;
 	TArray<FTreeNode*> TreeNodeList;
 	TArray<TArray<FTreeNode*>> TreeDepthLists;
+	TArray<UDungeonRoom*> RoomList;
+	UDungeonRoom* PlayerStartRoom;
+	UDungeonRoom* BossRoom;
 
 	// 0. 그리드 생성하기
 public:
 	void GenerateGrid(int _Width, int Height);
+	// Cell 레벨 생성하기
+	void UpdateCells();
 
 	// 1. 분할하기
 public:
@@ -117,12 +130,23 @@ public:
 	FVector2D GetRectCenter(FRect _Rect);
 	bool IsNotRoad(FVector2D _Matrix);
 
-	// 5. Room들 분류하기
+	// 5. Room들 분류, 진행 방향 설정
 public:
 	void SortRooms();
-	
-	// Cell 레벨 생성하기
+
+	// 6. 소품 생성
+
+	// 7. 몬스터 생성
+
+	// 999. 플레이어 생성하기, 게임 시작
 public:
-	void UpdateCells();
+	void StartGame();
+	UFUNCTION()
+	void OnEndBlendToPlayer();
+
+
+	// 인게임 관련
+public:
+	APlayableCharacter* Player;
 	
 };

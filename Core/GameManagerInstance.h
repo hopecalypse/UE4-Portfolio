@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "GameManagerInstance.generated.h"
 
+class APlayableCharacter;
 class UDungeonManager;
 enum class EPlayerClass : uint8;
 /**
@@ -15,7 +16,9 @@ UCLASS()
 class PORTFOLIO_API UGameManagerInstance : public UGameInstance
 {
 	GENERATED_BODY()
-	
+
+public:
+	UGameManagerInstance();
 	// 시스템 함수 -> 매니저들 조정
 public:
     virtual void Init() override;
@@ -30,10 +33,12 @@ public:
 	bool HasSelectedClass;
 	void SelectPlayerClass(EPlayerClass _SelectClass);
 	EPlayerClass GetPlayerClass() { return SelectedPlayerClass; }
-	
-	
 
-	
+public:
+	TSubclassOf<APlayableCharacter> WarriorBP;
+	TSubclassOf<APlayableCharacter> MageBP;
+	TSubclassOf<APlayableCharacter> GunnerBP;
+	TSubclassOf<APlayableCharacter> GetSelectedClassBP();
 
 	// 생성자, 소멸자(각 매니저들 Destory 호출)
 //public:

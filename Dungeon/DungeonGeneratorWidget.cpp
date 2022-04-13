@@ -88,5 +88,17 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 		UDungeonManager::Instance()->UpdateCells();
 		Phase++;
 	}
+	// 7. 방 분류하기
+	else if(Phase == 7)
+	{
+		UDungeonManager::Instance()->SortRooms();
+		Phase++;
+	}
+	// 999. 플레이어 스폰
+	else if(Phase == 8)
+	{
+		UDungeonManager::Instance()->StartGame();
+		SetVisibility(ESlateVisibility::Hidden);
+	}
 	
 }

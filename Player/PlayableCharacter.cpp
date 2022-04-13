@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Core/PortFolioGameModeBase.h"
+#include "Dungeon/DungeonManager.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Monster/MonsterGeneralCharacter.h"
@@ -67,8 +68,12 @@ void APlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// 플레이어 HUD 위젯 초기화
-	PlayerHUD = Cast<APortFolioGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPlayerHUDWidget();
+	// // 플레이어 HUD 위젯 초기화
+	// PlayerHUD = Cast<APortFolioGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPlayerHUDWidget();
+	if(PlayerHUD == nullptr)
+		PlayerHUD = UDungeonManager::Instance()->PlayerHUD;
+	if(PlayerHUD == nullptr)
+		PlayerHUD = Cast<APortFolioGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPlayerHUDWidget();
 	// HP, MP바
 	PlayerHUD->SyncHpMpBar(PlayerInfo.CurrentHp, PlayerInfo.MaxHp, PlayerInfo.CurrentMp, PlayerInfo.MaxMp);
 	// 스킬 이미지

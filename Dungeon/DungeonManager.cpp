@@ -7,8 +7,12 @@
 #include "DungeonDataAsset.h"
 #include "DungeonRoom.h"
 #include "PortFolio.h"
+#include "Core/GameManagerInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Manager/PathManager.h"
+#include "Player/PlayableCharacter.h"
+#include "UI/PlayerHUD.h"
 
 UDungeonManager* UDungeonManager::ManagerInstance = nullptr;
 
@@ -21,6 +25,10 @@ UDungeonManager::UDungeonManager()
 	static ConstructorHelpers::FObjectFinder<UMaterial> _RedMaterial(TEXT("Material'/Game/_Materials/MT_Red.MT_Red'"));
 	if(_RedMaterial.Succeeded())
 		RedMaterial = _RedMaterial.Object;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> _PlayerHUDClass(TEXT("WidgetBlueprint'/Game/_Blueprints/UI/WBP_PlayerHUD.WBP_PlayerHUD_C'"));
+	if(_PlayerHUDClass.Succeeded())
+		PlayerHUDBP = _PlayerHUDClass.Class;
 }
 
 void UDungeonManager::GenerateInst(UObject* _GameInstance)
@@ -227,6 +235,8 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		FRect* _Rect = new FRect(_X, _Y, _Width, _Height);
 		_Room->Rect = _Rect;
 		_Room->CenterCell = CellMap.FindRef(FVector2D(_X + FMath::RoundToInt(_Width / 2), _Y + FMath::RoundToInt(_Height / 2)));
+
+		RoomList.Add(_Room);
 		//UKismetSystemLibrary::DrawDebugCircle(this, _Room->CenterCell->Location, 100.f, 10.f, FLinearColor::Green, 100.f, 50.f);
 	}
 
@@ -309,8 +319,28 @@ bool UDungeonManager::IsNotRoad(FVector2D _Matrix)
 
 void UDungeonManager::SortRooms()
 {
-	// Room 분류하기(CenterCell) -> 4방향으로, 플레이어 시작/보스방 정하기
-	
+	// Bottom Left(Min), Top Right(Max) 골라내기
+	UDungeonRoom* _BottomLeft = RoomList[0];
+	UDungeonRoom* _TopLeft = RoomList[0];
+	for(int i = 1; i < RoomList.Num(); i++)
+	{
+		int _Cur = RoomList[i]->CenterCell->Matrix.X + RoomList[i]->CenterCell->Matrix.Y;
+		
+		// 최소
+		if(_Cur < (_BottomLeft->CenterCell->Matrix.X +_BottomLeft->CenterCell->Matrix.Y))
+			_BottomLeft = RoomList[i];
+		// 최대
+		if(_Cur > (_TopLeft->CenterCell->Matrix.X + _TopLeft->CenterCell->Matrix.Y))
+			_TopLeft = RoomList[i];
+	}
+
+	// 두 개의 방 중 랜덤 선택
+	int _Rand = FMath::RandRange(0, 1);
+	PlayerStartRoom = _Rand == 0 ? _BottomLeft : _TopLeft;
+	BossRoom = _Rand == 0 ? _TopLeft : _BottomLeft;
+
+	UKismetSystemLibrary::DrawDebugSphere(this, PlayerStartRoom->CenterCell->Location, 100.f, 10, FLinearColor::Blue, 10.f, 50.f);
+	UKismetSystemLibrary::DrawDebugSphere(this, BossRoom->CenterCell->Location, 100.f, 10, FLinearColor::Red, 10.f, 50.f);
 }
 
 void UDungeonManager::UpdateCells()
@@ -320,4 +350,47 @@ void UDungeonManager::UpdateCells()
 		_Cell.Value->GenerateLevel();
 	}
 }
+
+void UDungeonManager::StartGame()
+{
+	// 플레이어 HUD 생성
+	PlayerHUD = Cast<UPlayerHUD>(CreateWidget(GetOuter()->GetWorld(), PlayerHUDBP));
+	PlayerHUD->SetVisibility(ESlateVisibility::Hidden);
+	PlayerHUD->AddToViewport();
+	
+	// 플레이어 스폰하기
+	TSubclassOf<APlayableCharacter> _SelPlayerClass = Cast<UGameManagerInstance>(UGameplayStatics::GetGameInstance(GetOuter()))->GetSelectedClassBP();
+	FActorSpawnParameters _SpawnParams = {};
+	_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
+	_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	Player = GetOuter()->GetWorld()->SpawnActor<APlayableCharacter>(_SelPlayerClass, PlayerStartRoom->CenterCell->Location + FVector(0.f, 0.f, 88.f), FRotator::ZeroRotator, _SpawnParams);
+	Player->SetPlayerHUD(PlayerHUD);
+	
+	// InputMode 변경
+	APlayerController* _PlayerController = UGameplayStatics::GetPlayerController(GetOuter(), 0);
+	FInputModeGameOnly _GameInputMode;
+	_PlayerController->SetInputMode(_GameInputMode);
+	_PlayerController->SetShowMouseCursor(false);
+	// 플레이어 Pawn으로 Blend 시작
+	_PlayerController->SetViewTargetWithBlend(Player, 3.f);
+	
+	// 타이머 설정
+	FTimerHandle _TimerHandle;
+	FTimerDelegate _TimerDelegate;
+	_TimerDelegate.BindUFunction(this, TEXT("OnEndBlendToPlayer"));
+
+	GetOuter()->GetWorld()->GetTimerManager().SetTimer(_TimerHandle, _TimerDelegate, 3.f, false);
+}
+
+void UDungeonManager::OnEndBlendToPlayer()
+{
+	// 빙의하기
+	APlayerController* _PlayerController = UGameplayStatics::GetPlayerController(GetOuter(), 0);
+	_PlayerController->Possess(Player);
+	// Debug 지우기
+	UKismetSystemLibrary::FlushPersistentDebugLines(this);
+}
+
+
 

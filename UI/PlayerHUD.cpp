@@ -110,6 +110,10 @@ void UPlayerHUD::SetHUDSkillImages(const FClassActingInfo _ActingInfo)
 		Image_Skill2->SetBrushFromTexture(_ActingInfo.Skill2Image);
 	if(_ActingInfo.Skill3Image != nullptr)
 		Image_Skill3->SetBrushFromTexture(_ActingInfo.Skill3Image);
+
+	// 만약 숨겨져 있다면 보이게 하기
+	if(GetVisibility() == ESlateVisibility::Hidden)
+		SetVisibility(ESlateVisibility::Visible);
 }
 
 
