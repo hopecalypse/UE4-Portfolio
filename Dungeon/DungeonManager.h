@@ -101,6 +101,7 @@ public:
 	TArray<UDungeonRoom*> RoomList;
 	UDungeonRoom* PlayerStartRoom;
 	UDungeonRoom* BossRoom;
+	APawn* ObserverPawn;
 
 	// 0. 그리드 생성하기
 public:
@@ -137,6 +138,8 @@ public:
 	// 6. 소품 생성
 
 	// 7. 몬스터 생성
+public:
+	void GenerateMonster();
 
 	// 999. 플레이어 생성하기, 게임 시작
 public:

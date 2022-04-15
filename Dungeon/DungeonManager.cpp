@@ -6,11 +6,13 @@
 #include "DungeonCell.h"
 #include "DungeonDataAsset.h"
 #include "DungeonRoom.h"
+#include "ObserverPawn.h"
 #include "PortFolio.h"
 #include "Core/GameManagerInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Manager/PathManager.h"
+#include "Monster/MonsterGeneralCharacter.h"
 #include "Player/PlayableCharacter.h"
 #include "UI/PlayerHUD.h"
 
@@ -103,6 +105,13 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 	// Root 노드 생성
 	RootNode = new FTreeNode(0, 0, _Width, _Height);
 	RootNode->bIsLeaf = false;
+
+	// 옵저버 플레이어 위치 조정
+	APawn* _ObserverPlayer = UGameplayStatics::GetPlayerPawn(GetOuter(), 0);
+	float _X = _Width * 300.f;
+	float _Y = _Height * 300.f;
+	_ObserverPlayer->SetActorLocation(FVector(_X, _Y, FMath::Max(_Width, _Height) * 800.f));
+	_ObserverPlayer->SetActorRotation(FRotator(-90.f, 0.f, 0.f));
 }
 
 void UDungeonManager::StartSplitTree(int _Count)
@@ -338,9 +347,45 @@ void UDungeonManager::SortRooms()
 	int _Rand = FMath::RandRange(0, 1);
 	PlayerStartRoom = _Rand == 0 ? _BottomLeft : _TopLeft;
 	BossRoom = _Rand == 0 ? _TopLeft : _BottomLeft;
+	PlayerStartRoom->bPlayerStart = true;
+	BossRoom->bBossRoom = true;
 
 	UKismetSystemLibrary::DrawDebugSphere(this, PlayerStartRoom->CenterCell->Location, 100.f, 10, FLinearColor::Blue, 10.f, 50.f);
 	UKismetSystemLibrary::DrawDebugSphere(this, BossRoom->CenterCell->Location, 100.f, 10, FLinearColor::Red, 10.f, 50.f);
+}
+
+void UDungeonManager::GenerateMonster()
+{
+	// 플레이어 시작방, 보스방이 아닌 방에 몬스터 랜덤 생성하기
+	for(int i = 0; i < RoomList.Num(); i++)
+	{
+		if(!RoomList[i]->bPlayerStart && !RoomList[i]->bBossRoom)
+		{
+			UDungeonRoom* _CurRoom = RoomList[i];
+				
+			// 몬스터 개수
+			int _Count = FMath::RandRange(3, 6);
+
+			TArray<FVector2D> _Selected;
+			for(int j = 0; j < _Count; j++)
+			{
+				// 랜덤 위치 설정(Cell)
+				FVector2D _RandMatrix = FVector2D(FMath::RandRange(_CurRoom->Rect->X, _CurRoom->Rect->X + _CurRoom->Rect->Width), FMath::RandRange(_CurRoom->Rect->Y, _CurRoom->Rect->Y + _CurRoom->Rect->Height));;
+
+				while(_Selected.Contains(_RandMatrix) == true)
+					_RandMatrix = FVector2D(FMath::RandRange(_CurRoom->Rect->X, _CurRoom->Rect->X + _CurRoom->Rect->Width), FMath::RandRange(_CurRoom->Rect->Y, _CurRoom->Rect->Y + _CurRoom->Rect->Height));
+				_Selected.Add(_RandMatrix);
+
+				// 랜덤 몬스터 스폰
+				TSubclassOf<AMonsterGeneralCharacter> _MonsterClass = LevelDataAsset->RoomMonsters[FMath::RandRange(0, LevelDataAsset->RoomMonsters.Num() - 1)];
+				FActorSpawnParameters _SpawnParams;
+				_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
+				_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+				AMonsterGeneralCharacter* _Monster = GetOuter()->GetWorld()->SpawnActor<AMonsterGeneralCharacter>(_MonsterClass, CellMap.FindRef(_RandMatrix)->Location + FVector(0.f, 0.f, 100.f), FRotator::ZeroRotator, _SpawnParams);
+			}
+		}
+	}
 }
 
 void UDungeonManager::UpdateCells()
@@ -359,6 +404,8 @@ void UDungeonManager::StartGame()
 	PlayerHUD->AddToViewport();
 	
 	// 플레이어 스폰하기
+	ObserverPawn = UGameplayStatics::GetPlayerPawn(GetOuter(), 0);
+	Cast<AObserverPawn>(ObserverPawn)->bFreeze = true;
 	TSubclassOf<APlayableCharacter> _SelPlayerClass = Cast<UGameManagerInstance>(UGameplayStatics::GetGameInstance(GetOuter()))->GetSelectedClassBP();
 	FActorSpawnParameters _SpawnParams = {};
 	_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
@@ -385,6 +432,8 @@ void UDungeonManager::StartGame()
 
 void UDungeonManager::OnEndBlendToPlayer()
 {
+	// ObserverPawn 제거
+	ObserverPawn->Destroy();
 	// 빙의하기
 	APlayerController* _PlayerController = UGameplayStatics::GetPlayerController(GetOuter(), 0);
 	_PlayerController->Possess(Player);

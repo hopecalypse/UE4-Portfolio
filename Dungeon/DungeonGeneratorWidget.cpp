@@ -94,8 +94,14 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 		UDungeonManager::Instance()->SortRooms();
 		Phase++;
 	}
-	// 999. 플레이어 스폰
+	// 8. 몬스터 생성
 	else if(Phase == 8)
+	{
+		UDungeonManager::Instance()->GenerateMonster();
+		Phase++;
+	}
+	// 999. 플레이어 스폰
+	else if(Phase == 9)
 	{
 		UDungeonManager::Instance()->StartGame();
 		SetVisibility(ESlateVisibility::Hidden);

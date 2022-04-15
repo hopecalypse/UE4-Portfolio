@@ -8,6 +8,7 @@
 #include "Combat/ProjectileGeneral.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Monster/MonsterGeneralCharacter.h"
 
@@ -28,7 +29,8 @@ void APlayerMage::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = Cast<APlayerController>(GetController());
+	//PlayerController = Cast<APlayerController>(GetController());
+	PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 }
 
 void APlayerMage::Tick(float DeltaSeconds)
@@ -243,6 +245,9 @@ void APlayerMage::TickCastingSkill3(float _DeltaTime)
 {
 	if(bIsCasting)
 	{
+		if(PlayerController == nullptr)
+			PlayerController = Cast<APlayerController>(GetController());
+		
 		// 충돌 지점에 Decal Actor 위치시키기
 		FHitResult _HitResult = {};
 		bool _Hit = PlayerController->GetHitResultUnderCursor(ECC_GameTraceChannel8, false, _HitResult);

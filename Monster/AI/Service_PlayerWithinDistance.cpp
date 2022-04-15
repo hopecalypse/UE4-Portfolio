@@ -52,11 +52,10 @@ void UService_PlayerWithinDistance::TickNode(UBehaviorTreeComponent& OwnerComp, 
 		_MonsterAIC->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), nullptr);
 	}
 
-#ifdef ENABLE_DRAW_DEBUG
-	DrawDebugSphere(GetWorld(), _MonsterCharacter->GetActorLocation(), _DetectRange, 40,
-		_Distance < _DetectRange ? FColor::Red : FColor::White,
-		false, 0.5f
-		);
-#endif
-	
+// #ifdef ENABLE_DRAW_DEBUG
+// 	DrawDebugSphere(GetWorld(), _MonsterCharacter->GetActorLocation(), _DetectRange, 40,
+// 		_Distance < _DetectRange ? FColor::Red : FColor::White,
+// 		false, 0.5f
+// 		);
+// #endif
 }

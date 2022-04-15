@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "DungeonDataAsset.generated.h"
 
+class AMonsterGeneralCharacter;
 /**
  * 
  */
@@ -18,10 +19,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> TesterFloor;
 
+	// 레벨
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> Floor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> LeftWall;
+
+	// 몬스터
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TSubclassOf<AMonsterGeneralCharacter>> RoomMonsters;
+	
 	
 };

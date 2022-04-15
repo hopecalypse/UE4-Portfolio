@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Manager/EffectManager.h"
@@ -37,7 +38,8 @@ void APlayerWarrior::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = Cast<APlayerController>(GetController());
+	//PlayerController = Cast<APlayerController>(GetController());
+	PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 }
 
 void APlayerWarrior::Tick(float DeltaSeconds)
@@ -159,9 +161,13 @@ void APlayerWarrior::TickCastingSkill3(float _DeltaTime)
 {
 	if(bIsCasting)
 	{
+		if(PlayerController == nullptr)
+			PlayerController = Cast<APlayerController>(GetController());
+	
 		// 충돌 지점에 Decal Actor 위치시키기
 		FHitResult _HitResult = {};
-		bool _Hit = PlayerController->GetHitResultUnderCursor(ECC_GameTraceChannel8, false, _HitResult);
+		bool _Hit = PlayerController->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel8), false, _HitResult);
+		//bool _Hit = PlayerController->GetHitResultUnderCursor(ECC_GameTraceChannel8, false, _HitResult);
 		if(_Hit == false)
 			return;
 
@@ -234,6 +240,9 @@ void APlayerWarrior::TickFlySkill3(float _DeltaTime)
 {
 	if(bIsFlying)
 	{
+		if(PlayerController == nullptr)
+			PlayerController = Cast<APlayerController>(GetController());
+		
 		// 위치로 이동하기
 		FVector _FlyingVector = FMath::VInterpTo(GetActorLocation(), FlyingLocation, _DeltaTime, SelectDistance / 500.f);
 		SetActorLocation(_FlyingVector);

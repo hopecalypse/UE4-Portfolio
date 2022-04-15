@@ -22,7 +22,9 @@ void ADungeonGameMode::BeginPlay()
 	DungeonGeneratorWidget->AddToViewport();
 
 	// Input Mode 설정
-	FInputModeUIOnly _Mode;
+	//FInputModeUIOnly _Mode;
+	FInputModeGameAndUI _Mode;
+	//FInputModeGameOnly _Mode;
 	GetWorld()->GetFirstPlayerController()->SetInputMode(_Mode);
 	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
 	
