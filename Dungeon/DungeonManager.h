@@ -135,11 +135,17 @@ public:
 public:
 	void SortRooms();
 
+	// 5-1. 길찾기 테스트
+public:
+	void TestPathFinding();
+
 	// 6. 소품 생성
 
 	// 7. 몬스터 생성
 public:
 	void GenerateMonster();
+
+	
 
 	// 999. 플레이어 생성하기, 게임 시작
 public:

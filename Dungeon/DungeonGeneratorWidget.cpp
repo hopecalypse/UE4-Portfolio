@@ -10,6 +10,7 @@
 #include "Components/EditableText.h"
 #include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Manager/PathManager.h"
 #include "Misc/DefaultValueHelper.h"
 
 void UDungeonGeneratorWidget::NativeConstruct()
@@ -94,14 +95,32 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 		UDungeonManager::Instance()->SortRooms();
 		Phase++;
 	}
-	// 8. 몬스터 생성
+	// 8. 길찾기 테스트: 이동가능 Node 표시
 	else if(Phase == 8)
+	{
+		UKismetSystemLibrary::FlushPersistentDebugLines(UDungeonManager::Instance());
+		// 모든 PathNode들에 대해 Obstacle 표시
+		for(auto& _PathNode : UPathManager::Instance()->PathNodeMap)
+		{
+			FLinearColor _Color = _PathNode.Value->bObstacle ? FLinearColor::Red : FLinearColor::Green;
+			UKismetSystemLibrary::DrawDebugPoint(this, _PathNode.Value->Location, 10.f, _Color, 100.f);
+		}
+		Phase++;
+	}
+	// 9. 길찾기 테스트: 플레이어~보스 A* 경로탐색
+	else if(Phase == 9)
+	{
+		UDungeonManager::Instance()->TestPathFinding();
+		Phase++;
+	}
+	// 10. 몬스터 생성
+	else if(Phase == 10)
 	{
 		UDungeonManager::Instance()->GenerateMonster();
 		Phase++;
 	}
 	// 999. 플레이어 스폰
-	else if(Phase == 9)
+	else if(Phase == 11)
 	{
 		UDungeonManager::Instance()->StartGame();
 		SetVisibility(ESlateVisibility::Hidden);

@@ -10,6 +10,8 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Manager/PathManager.h"
 #include "Monster/AI/MonsterAIController.h"
 #include "Player/PlayableCharacter.h"
 #include "UI/MonsterHpBar.h"
@@ -66,6 +68,7 @@ void AMonsterGeneralCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	TickMove(DeltaTime);
 	//LOGTEXT_LOG(TEXT("%d"), GetMonsterState());
 }
 
@@ -112,6 +115,42 @@ void AMonsterGeneralCharacter::DieImmediately()
 void AMonsterGeneralCharacter::SetMovementSpeed(float _Speed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = _Speed;
+}
+
+void AMonsterGeneralCharacter::SetDestination(FVector _Destination)
+{
+	PathList.Empty();
+	PathList = UPathManager::Instance()->FindPath(GetActorLocation(), _Destination);
+	CurrentPath = PathList.Pop();
+	bPathMoving = true;
+}
+
+void AMonsterGeneralCharacter::TickMove(float _DeltaTime)
+{
+	if(bPathMoving && (MonsterState == EMonsterState::E_MovingIdle || MonsterState == EMonsterState::E_MovingTrace))
+	{
+		FVector _Current = GetActorLocation();
+		_Current.Z = 0;
+		LOGTEXT_LOG(TEXT("[%s] 패스(%d) 남은 거리: %f"), *GetName(), PathList.Num(), FVector::Distance(_Current, CurrentPath));
+		// 1. 현재 PathNode에 도착했을 때
+		if(FVector::Distance(_Current, CurrentPath) < 10.f)
+		{
+			// 아직 남았을 때
+			if(PathList.Num() > 0)
+				CurrentPath = PathList.Pop();
+			// 도착 완료
+			else
+			{
+				bPathMoving = false;
+			}
+		}
+		// 2. 이동중일 때 -> 이동, 회전
+		else
+		{
+			SetActorLocation(UKismetMathLibrary::VInterpTo_Constant(GetActorLocation(), CurrentPath, _DeltaTime, 400.f));
+			SetActorRotation(UKismetMathLibrary::RInterpTo_Constant(GetActorRotation(), UKismetMathLibrary::FindLookAtRotation(_Current, CurrentPath), _DeltaTime, 100.f));
+		}
+	}
 }
 
 // * 애니메이션 관련

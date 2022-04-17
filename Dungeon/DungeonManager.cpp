@@ -88,15 +88,28 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 			
 			AActor* _Visualizer = GetWorld()->SpawnActor<AActor>(LevelDataAsset->TesterFloor, _GenCell->Location, FRotator::ZeroRotator, _SpawnParams);
 			_GenCell->Visualizer = _Visualizer;
-
-			// 9개의 PathNode 추가
-			for(int k = 0; k < 3; k++)
+			
+			// 16개의 PathNode 추가
+			for(int k = 0; k <= 4; k++)
 			{
-				for(int l = 0; l < 3; l++)
+				for(int l = 0; l <= 4; l++)
 				{
-					FPathNode* _PathNode = new FPathNode((j * 3) + l, (i * 3) + k);
-					_GenCell->PathNodes.Add(_PathNode);
-					UPathManager::Instance()->PathNodeMap.Add(FVector2D(_PathNode->Matrix), _PathNode);
+					FPathNode* _PathNode;
+					if(!UPathManager::Instance()->PathNodeMap.Contains(FVector2D((j * 4) + l, (i * 4) + k)))
+					{
+						_PathNode = new FPathNode((j * 4) + l, (i * 4) + k);
+						UPathManager::Instance()->PathNodeMap.Add(_PathNode->Matrix, _PathNode);
+					}
+					else
+					{
+						_PathNode = UPathManager::Instance()->PathNodeMap.FindRef(FVector2D((j * 4) + l, (i * 4) + k));
+					}
+					
+					// 해당 Cell 내부 의 Node로 할당
+					FVector2D _CellMatrix = FVector2D(l, k);
+					_GenCell->PathNodes.Add(_CellMatrix, _PathNode);
+					_PathNode->Cell = _GenCell;
+					//UKismetSystemLibrary::DrawDebugPoint(this, _PathNode->Location, 10.f + k + l, _Color, 100.f);
 				}
 			}
 		}
@@ -235,9 +248,9 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		{
 			_RoomCells[i]->ClearVisualizer();
 			_RoomCells[i]->bRoom = true;
+			_RoomCells[i]->Room = _Room;
 			
 			_Room->Cells.Add(_RoomCells[i]);
-			_RoomCells[i]->Room = _Room;
 		}
 		
 		// Room의 Rect 할당
@@ -246,6 +259,7 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		_Room->CenterCell = CellMap.FindRef(FVector2D(_X + FMath::RoundToInt(_Width / 2), _Y + FMath::RoundToInt(_Height / 2)));
 
 		RoomList.Add(_Room);
+		LOGTEXT_LOG(TEXT("Room 생성됨: (Cell개수:%d)"), _Room->Cells.Num());
 		//UKismetSystemLibrary::DrawDebugCircle(this, _Room->CenterCell->Location, 100.f, 10.f, FLinearColor::Green, 100.f, 50.f);
 	}
 
@@ -354,6 +368,25 @@ void UDungeonManager::SortRooms()
 	UKismetSystemLibrary::DrawDebugSphere(this, BossRoom->CenterCell->Location, 100.f, 10, FLinearColor::Red, 10.f, 50.f);
 }
 
+void UDungeonManager::TestPathFinding()
+{
+	UKismetSystemLibrary::FlushPersistentDebugLines(this);
+	
+	FVector _Player = PlayerStartRoom->CenterCell->Location;
+	FVector _End = BossRoom->CenterCell->Location;
+	TArray<FVector> _PathArray = UPathManager::Instance()->FindPath(PlayerStartRoom->CenterCell->Location, BossRoom->CenterCell->Location);
+	FVector _Current = _PathArray.Pop();
+	FVector _Next;
+	while (_PathArray.Num() > 0)
+	{
+		_Next = _PathArray.Pop();
+		UKismetSystemLibrary::DrawDebugLine(this, _Current, _Next, FLinearColor::Blue, 100.f, 100.f);
+		_Current = _Next;
+	}
+	UKismetSystemLibrary::DrawDebugPoint(this, _Player, 10.f, FLinearColor::Green, 100.f);
+	UKismetSystemLibrary::DrawDebugPoint(this, _End, 10.f, FLinearColor::Red, 100.f);
+}
+
 void UDungeonManager::GenerateMonster()
 {
 	// 플레이어 시작방, 보스방이 아닌 방에 몬스터 랜덤 생성하기
@@ -365,24 +398,25 @@ void UDungeonManager::GenerateMonster()
 				
 			// 몬스터 개수
 			int _Count = FMath::RandRange(3, 6);
-
-			TArray<FVector2D> _Selected;
+			
+			// 방(Room) 내의 랜덤 Cell 선택하기
+			TArray<UDungeonCell*> _RandCells;
+			while (_RandCells.Num() < _Count)
+			{
+				_RandCells.AddUnique(RoomList[i]->Cells[FMath::RandRange(0, RoomList[i]->Cells.Num() - 1)]);
+			}
+			
+			// 몬스터 스폰하기
 			for(int j = 0; j < _Count; j++)
 			{
-				// 랜덤 위치 설정(Cell)
-				FVector2D _RandMatrix = FVector2D(FMath::RandRange(_CurRoom->Rect->X, _CurRoom->Rect->X + _CurRoom->Rect->Width), FMath::RandRange(_CurRoom->Rect->Y, _CurRoom->Rect->Y + _CurRoom->Rect->Height));;
-
-				while(_Selected.Contains(_RandMatrix) == true)
-					_RandMatrix = FVector2D(FMath::RandRange(_CurRoom->Rect->X, _CurRoom->Rect->X + _CurRoom->Rect->Width), FMath::RandRange(_CurRoom->Rect->Y, _CurRoom->Rect->Y + _CurRoom->Rect->Height));
-				_Selected.Add(_RandMatrix);
-
 				// 랜덤 몬스터 스폰
 				TSubclassOf<AMonsterGeneralCharacter> _MonsterClass = LevelDataAsset->RoomMonsters[FMath::RandRange(0, LevelDataAsset->RoomMonsters.Num() - 1)];
 				FActorSpawnParameters _SpawnParams;
-				_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
+				_SpawnParams.OverrideLevel = GetWorld()->GetCurrentLevel();
 				_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-				AMonsterGeneralCharacter* _Monster = GetOuter()->GetWorld()->SpawnActor<AMonsterGeneralCharacter>(_MonsterClass, CellMap.FindRef(_RandMatrix)->Location + FVector(0.f, 0.f, 100.f), FRotator::ZeroRotator, _SpawnParams);
+				_SpawnParams.bDeferConstruction = false;
+				
+				AMonsterGeneralCharacter* _Monster = GetWorld()->SpawnActor<AMonsterGeneralCharacter>(_MonsterClass, _RandCells[j]->Location + FVector(0.f, 0.f, 100.f), FRotator::ZeroRotator, _SpawnParams);
 			}
 		}
 	}

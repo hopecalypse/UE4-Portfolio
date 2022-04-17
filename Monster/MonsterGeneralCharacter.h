@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "MonsterGeneralCharacter.generated.h"
 
+struct FPathNode;
 class UMonsterHpBar;
 class UWidgetComponent;
 class UBehaviorTree;
@@ -111,6 +112,15 @@ protected:
 public:
 	UFUNCTION()
 	void SetMovementSpeed(float _Speed);
+
+	
+	// A* 이동 관련
+public:
+	TArray<FVector> PathList;
+	FVector CurrentPath;
+	bool bPathMoving;
+	void SetDestination(FVector _Destination);
+	void TickMove(float _DeltaTime);
 
 
 };

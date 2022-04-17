@@ -10,17 +10,21 @@
  * 
  */
 
+class UDungeonCell;
 USTRUCT(Atomic)
 struct FPathNode
 {
 	GENERATED_USTRUCT_BODY()
 public:
+	UDungeonCell* Cell;
 	FVector2D Matrix;
 	FVector Location;
-	bool bLeftWall;
-	bool bTopWall;
-	bool bRightWall;
-	bool bBottomWall;
+	
+	bool bObstacle;
+	int F;		// 최종 평가 비용
+	int G;		// 이동 비용
+	int H;		// 예상 이동 비용(거리)
+	FPathNode* Parent;
 
 	FPathNode()
 	{
@@ -29,7 +33,7 @@ public:
 	FPathNode(int _X, int _Y)
 	{
 		Matrix = FVector2D(_X, _Y);
-		Location = FVector(100.f + _Y * 100.f, 100.f + _X * 100.f, 0.f);
+		Location = FVector(_Y * 150.f - 300.f, _X * 150.f - 300.f, 0.f);
 	}
 	
 };
@@ -47,12 +51,15 @@ public:
 	static UPathManager* Instance();
 	static void DestroyManager();
 
-	// 노드 Grid 리스트
+	// 노드 Grid 리스트(1 Cell = 6x6 PathNode)
 public:
 	TMap<FVector2D, FPathNode*> PathNodeMap;
 	
-	// 길찾기 관련
+	// 길찾기
 public:
-	
+	TArray<FVector> FindPath(FVector _Start, FVector _End);
+	FPathNode* FindCloseNode(FVector _Location);
+
+	FPathNode* PopOpenList(TArray<FPathNode*>* _OpenList);
 	
 };

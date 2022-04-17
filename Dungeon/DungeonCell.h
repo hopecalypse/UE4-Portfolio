@@ -33,6 +33,10 @@ public:
 	bool bTopWall;
 	bool bRightWall;
 	bool bBottomWall;
+	bool bLeftWallSide;
+	bool bTopWallSide;
+	bool bRightWallSide;
+	bool bBottoWallSide;
 
 	// 던전 레벨 오브젝트들
 public:
@@ -45,7 +49,7 @@ public:
 
 	// 길찾기 관련
 public:
-	TArray<FPathNode*> PathNodes;
+	TMap<FVector2D, FPathNode*> PathNodes;
 
 	// 초기화
 public:
@@ -55,5 +59,7 @@ public:
 	
 	void GenerateLevel();
 	void SpawnLevelActors();
+
+	void SetWall(bool _Value, int _Dir);
 	
 };
