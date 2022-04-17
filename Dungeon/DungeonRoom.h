@@ -20,9 +20,12 @@ public:
 	TArray<UDungeonCell*> Cells;
 	FRect* Rect;
 	UDungeonCell* CenterCell;
+	TArray<AMonsterGeneralCharacter*> Monsters;
 
 public:
 	bool bPlayerStart;
 	bool bBossRoom;
+
+	
 	
 };

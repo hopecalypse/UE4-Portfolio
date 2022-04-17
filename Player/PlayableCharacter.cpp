@@ -11,6 +11,7 @@
 #include "Combat/ProjectileGeneral.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Core/GameManagerInstance.h"
 #include "Core/PortFolioGameModeBase.h"
 #include "Dungeon/DungeonManager.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -150,6 +151,8 @@ void APlayableCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Button4", IE_Pressed, this, &APlayableCharacter::GetActionInput_Skill1);
 	PlayerInputComponent->BindAction("Button5", IE_Pressed, this, &APlayableCharacter::GetActionInput_Skill2);
 	PlayerInputComponent->BindAction("Button6", IE_Pressed, this, &APlayableCharacter::GetActionInput_Skill3);
+
+	PlayerInputComponent->BindAction(TEXT("Tab"), IE_Pressed, this, &APlayableCharacter::SwitchCharacter);
 }
 
 void APlayableCharacter::MoveForward(float AxisValue)
@@ -221,6 +224,17 @@ void APlayableCharacter::StartJump()
 		Super::Jump();
 		SetCurrentState(EPlayerState::E_Jumping);
 		// ~점프 완료시 AnimNotify 호출됨(Idle로)
+	}
+}
+
+void APlayableCharacter::SwitchCharacter()
+{
+	LOGTEXT_LOG(TEXT("캐릭터 전환버튼 클릭"));
+
+	if(GetCurrentState() == EPlayerState::E_Idle)
+	{
+		UGameManagerInstance* _GameInstance = Cast<UGameManagerInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		_GameInstance->SwitchCharacter(GetClass(), this);
 	}
 }
 

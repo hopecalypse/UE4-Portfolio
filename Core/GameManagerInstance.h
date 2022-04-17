@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "Player/PlayableCharacter.h"
 #include "GameManagerInstance.generated.h"
 
 class APlayableCharacter;
@@ -39,6 +40,9 @@ public:
 	TSubclassOf<APlayableCharacter> MageBP;
 	TSubclassOf<APlayableCharacter> GunnerBP;
 	TSubclassOf<APlayableCharacter> GetSelectedClassBP();
+
+public:
+	void SwitchCharacter(UClass* _CurClass, APlayableCharacter* _Character);
 
 	// 생성자, 소멸자(각 매니저들 Destory 호출)
 //public:

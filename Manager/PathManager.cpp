@@ -34,12 +34,12 @@ void UPathManager::DestroyManager()
 TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 {
 	// 노드들을 초기화하기
-	for(auto& _Iter : PathNodeMap)
+	for(int i = 0; i < PathNodeArray.Num(); i++)
 	{
-		_Iter.Value->F = 0;
-		_Iter.Value->G = 0;
-		_Iter.Value->H = 0;
-		_Iter.Value->Parent = nullptr;
+		PathNodeArray[i]->F = 0.f;
+		PathNodeArray[i]->G = 0.f;
+		PathNodeArray[i]->H = 0.f;
+		PathNodeArray[i]->Parent = nullptr;
 	}
 
 	FPathNode* _StartNode = FindCloseNode(_Start);
@@ -131,13 +131,18 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 FPathNode* UPathManager::FindCloseNode(FVector _Location)
 {
 	_Location.Z = 0;
-	FPathNode* _Close = PathNodeMap.FindRef(FVector2D(0, 0));
-	for (auto& _Iter : PathNodeMap)
+	FPathNode* _Close = nullptr;
+	float _Dist = 1000000000.f;
+	for(int i = 0; i < PathNodeArray.Num(); i++)
 	{
-		if(FVector::Distance(_Location, _Iter.Value->Location) < FVector::Distance(_Location, _Close->Location))
-			_Close = _Iter.Value;
+		if(FVector::Distance(_Location, PathNodeArray[i]->Location) < _Dist)
+		{
+			_Close = PathNodeArray[i];
+			_Dist = FVector::Distance(_Location, PathNodeArray[i]->Location);
+		}
 	}
-
+	if(_Close == nullptr)
+		LOGTEXT_ERROR(TEXT("!!!FindNode Null 오류!!!"));
 	return _Close;
 }
 

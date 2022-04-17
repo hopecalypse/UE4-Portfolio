@@ -54,6 +54,7 @@ public:
 	// 노드 Grid 리스트(1 Cell = 6x6 PathNode)
 public:
 	TMap<FVector2D, FPathNode*> PathNodeMap;
+	TArray<FPathNode*> PathNodeArray;
 	
 	// 길찾기
 public:

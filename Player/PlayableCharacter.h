@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "PlayableCharacter.generated.h"
 
+class UDungeonCell;
+class UDungeonRoom;
 class AProjectileGeneral;
 class UPlayerAnimInstance;
 class USpringArmComponent;
@@ -55,6 +57,8 @@ public:
 	void RotatePitch(float AxisValue);
 	UFUNCTION()
 	void StartJump();
+	// 캐릭터 교체 관련
+	void SwitchCharacter();
 	// Action 함수 정의
 	UFUNCTION()
 	virtual void GetActionInput_AttackBasic();
@@ -175,5 +179,10 @@ private:
 	UPlayerHUD* PlayerHUD;
 public:
 	void SetPlayerHUD(UPlayerHUD* _PlayerHUD) { PlayerHUD = _PlayerHUD; };
+	
+	// 던전 관련
+public:
+	UDungeonRoom* CurRoom;
+	UDungeonCell* CurCell;
 	
 };

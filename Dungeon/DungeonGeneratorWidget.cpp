@@ -116,7 +116,7 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 	// 10. 몬스터 생성
 	else if(Phase == 10)
 	{
-		UDungeonManager::Instance()->GenerateMonster();
+		//UDungeonManager::Instance()->GenerateMonster();
 		Phase++;
 	}
 	// 999. 플레이어 스폰

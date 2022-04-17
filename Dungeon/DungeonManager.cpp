@@ -99,6 +99,7 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 					{
 						_PathNode = new FPathNode((j * 4) + l, (i * 4) + k);
 						UPathManager::Instance()->PathNodeMap.Add(_PathNode->Matrix, _PathNode);
+						UPathManager::Instance()->PathNodeArray.AddUnique(_PathNode);
 					}
 					else
 					{
@@ -417,6 +418,9 @@ void UDungeonManager::GenerateMonster()
 				_SpawnParams.bDeferConstruction = false;
 				
 				AMonsterGeneralCharacter* _Monster = GetWorld()->SpawnActor<AMonsterGeneralCharacter>(_MonsterClass, _RandCells[j]->Location + FVector(0.f, 0.f, 100.f), FRotator::ZeroRotator, _SpawnParams);
+
+				// Room에 몬스터 등록하기
+				_RandCells[j]->Room->Monsters.Add(_Monster);
 			}
 		}
 	}

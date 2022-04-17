@@ -8,6 +8,7 @@
 #include "Manager/EffectManager.h"
 #include "Manager/PathManager.h"
 #include "Manager/SoundManager.h"
+#include "Player/PlayableCharacter.h"
 
 UGameManagerInstance::UGameManagerInstance()
 {
@@ -56,4 +57,32 @@ TSubclassOf<APlayableCharacter> UGameManagerInstance::GetSelectedClassBP()
 		return MageBP;
 	else
 		return GunnerBP;
+}
+
+void UGameManagerInstance::SwitchCharacter(UClass* _CurClass, APlayableCharacter* _Character)
+{
+	TSubclassOf<APlayableCharacter> _NextClass = nullptr;
+	if(_CurClass == WarriorBP)
+		_NextClass = MageBP;
+	else if(_CurClass == MageBP)
+		_NextClass = GunnerBP;
+	else
+		_NextClass = WarriorBP;
+
+	FVector _Location = _Character->GetActorLocation();
+	FRotator _Rotator = _Character->GetActorRotation();
+	APlayerController* _Controller = Cast<APlayerController>(_Character->GetController());
+	ULevel* _Level = _Character->GetLevel();
+
+	// 현재 캐릭터 지우고 컨트롤러 방의
+	_Controller->UnPossess();
+
+	_Character->Destroy();
+
+	FActorSpawnParameters _SpawnParams;
+	_SpawnParams.OverrideLevel = _Level;
+	_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	APlayableCharacter* _NewCharacter = _Level->GetWorld()->SpawnActor<APlayableCharacter>(_NextClass, _Location, _Rotator, _SpawnParams);
+	_Controller->Possess(_NewCharacter);
 }

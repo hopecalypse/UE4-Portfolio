@@ -36,29 +36,26 @@ EBTNodeResult::Type UTask_PatrolRandomPoint::ExecuteTask(UBehaviorTreeComponent&
 		MonsterAIController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolTargetLocation"), FVector::ZeroVector);
 		// 정보 가져오기
 		FVector _SpawnLocation = MonsterAIController->GetBlackboardComponent()->GetValueAsVector(TEXT("SpawnLocation"));
-
-		// 던전 정보 가져오기
-		FPathNode* _SpawnNode = UPathManager::Instance()->FindCloseNode(_SpawnLocation);
+		_SpawnLocation.Z = 0;
 		
-		// 방 내의 랜덤 PathNode 3개 뽑기
-		TArray<UDungeonCell*> _RoomRandCells;
-		while(_RoomRandCells.Num() < 3)
-			_RoomRandCells.AddUnique(_SpawnNode->Cell->Room->Cells[FMath::RandRange(0, _SpawnNode->Cell->Room->Cells.Num() - 1)]);
-
-		// 3개의 노드 중 랜덤 PathNode뽑고 등록
-		for(int i = 0; i < _RoomRandCells.Num(); i++)
+		//! Renew -> 랜덤 지점 찍기
+		FPathNode* _SpawnNode = UPathManager::Instance()->FindCloseNode(_SpawnLocation);
+		TArray<FPathNode*> _RandNodes;
+		while (_RandNodes.Num() < 3)
 		{
-			//LOGTEXT_LOG(TEXT("랜덤 순찰 포인트 생성(%d)"), i);
-			FPathNode* _RandPathNode;
-			_RandPathNode = _RoomRandCells[i]->PathNodes.FindRef(FVector2D(FMath::RandRange(0, 4), FMath::RandRange(0, 4)));
-			while (_RandPathNode->bObstacle)
-			{
-				_RandPathNode = _RoomRandCells[i]->PathNodes.FindRef(FVector2D(FMath::RandRange(0, 4), FMath::RandRange(0, 4)));
-			}
-			MonsterAIController->GetBlackboardComponent()->SetValueAsVector(FName(TEXT("PatrolPoint") + FString::FromInt(i + 1)), _RandPathNode->Location);
+			FVector2D _RandVec = FVector2D(FMath::RandRange(-10, 10), FMath::RandRange(-10, 10));
+			FPathNode* _Node = UPathManager::Instance()->PathNodeMap.FindRef(_SpawnNode->Matrix + _RandVec);
+			if(_Node != nullptr)
+				_RandNodes.AddUnique(_Node);
+		}
+
+		// 3개의 노드 BT에 등록하기
+		for(int i = 0; i < _RandNodes.Num(); i++)
+		{
+			MonsterAIController->GetBlackboardComponent()->SetValueAsVector(FName(TEXT("PatrolPoint") + FString::FromInt(i + 1)), _RandNodes[i]->Location);
 			// 첫번째 포인트를 등록
 			if(i == 0)
-				MonsterAIController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolTargetLocation"), _RandPathNode->Location);
+				MonsterAIController->GetBlackboardComponent()->SetValueAsVector(TEXT("PatrolTargetLocation"), _RandNodes[i]->Location);
 		}
 
 		// Init 설정
