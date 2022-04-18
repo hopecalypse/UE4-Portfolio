@@ -6,6 +6,8 @@
 #include "UObject/NoExportTypes.h"
 #include "DungeonRoom.generated.h"
 
+class APlayableCharacter;
+class AMonsterGeneralCharacter;
 class UDungeonCell;
 struct FRect;
 /**
@@ -26,6 +28,10 @@ public:
 	bool bPlayerStart;
 	bool bBossRoom;
 
-	
+public:
+	void PlayerEnter(APlayableCharacter* _Player);
+
+private:
+	bool bPlayerEntered;
 	
 };

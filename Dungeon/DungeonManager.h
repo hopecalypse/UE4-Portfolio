@@ -157,5 +157,9 @@ public:
 	// 인게임 관련
 public:
 	APlayableCharacter* Player;
+	APlayerController* PlayerController;
+	void UpdatePlayerLocation(APlayableCharacter* _Player);
+	UDungeonCell* FindClosestCell(FVector _Location);
+	UDungeonRoom* PlayerRoom;
 	
 };

@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "Task_PatrolDungeonRoom.generated.h"
+#include "Task_SetPatrolPoint.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PORTFOLIO_API UTask_PatrolDungeonRoom : public UBTTaskNode
+class PORTFOLIO_API UTask_SetPatrolPoint : public UBTTaskNode
 {
 	GENERATED_BODY()
 	

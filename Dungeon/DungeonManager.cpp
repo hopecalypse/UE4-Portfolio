@@ -453,12 +453,12 @@ void UDungeonManager::StartGame()
 	Player->SetPlayerHUD(PlayerHUD);
 	
 	// InputMode 변경
-	APlayerController* _PlayerController = UGameplayStatics::GetPlayerController(GetOuter(), 0);
+	PlayerController = UGameplayStatics::GetPlayerController(GetOuter(), 0);
 	FInputModeGameOnly _GameInputMode;
-	_PlayerController->SetInputMode(_GameInputMode);
-	_PlayerController->SetShowMouseCursor(false);
+	PlayerController->SetInputMode(_GameInputMode);
+	PlayerController->SetShowMouseCursor(false);
 	// 플레이어 Pawn으로 Blend 시작
-	_PlayerController->SetViewTargetWithBlend(Player, 3.f);
+	PlayerController->SetViewTargetWithBlend(Player, 3.f);
 	
 	// 타이머 설정
 	FTimerHandle _TimerHandle;
@@ -477,6 +477,45 @@ void UDungeonManager::OnEndBlendToPlayer()
 	_PlayerController->Possess(Player);
 	// Debug 지우기
 	UKismetSystemLibrary::FlushPersistentDebugLines(this);
+}
+
+void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
+{
+	// 플레이어가 현재 있는 Cell 찾기
+	UDungeonCell* _PlayerCell = FindClosestCell(_Player->GetActorLocation());
+	if(_PlayerCell == nullptr)
+	{
+		//LOGTEXT_ERROR(TEXT("!!!오류: 플레이어 Cell 찾기 실패"));
+		return;
+	}
+		
+
+	//LOGTEXT_LOG(TEXT("현재 플레이어 Cell:%s, Room?%d"), *_PlayerCell->Matrix.ToString(), _PlayerCell->bRoom);
+
+	// 플레이어 방 입장
+	if(_PlayerCell->bRoom && _PlayerCell->Room != nullptr)
+	{
+		//LOGAUTO_WARN;
+		_PlayerCell->Room->PlayerEnter(_Player);
+	}
+}
+
+UDungeonCell* UDungeonManager::FindClosestCell(FVector _Location)
+{
+	_Location.Z = 0.f;
+	UDungeonCell* _Closest = nullptr;
+	float _Distance = 10000000000.f;
+	for(const TPair<FVector2D, UDungeonCell*>& _Map : CellMap)
+	{
+		float _CurDist = FVector::Distance(_Location, _Map.Value->Location);
+		if(_CurDist < _Distance)
+		{
+			_Distance = _CurDist;
+			_Closest = _Map.Value;
+		}
+	}
+
+	return _Closest;
 }
 
 

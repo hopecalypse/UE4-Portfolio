@@ -90,6 +90,7 @@ void APlayableCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	TickUpdateStatus();
+	UpdateDungeonLocation();
 }
 
 void APlayableCharacter::SetCurrentState(EPlayerState NextState)
@@ -129,6 +130,11 @@ void APlayableCharacter::ChangeMp(float _ManaPoint)
 
 	PlayerInfo.CurrentMp -= _ManaPoint;
 	PlayerHUD->SyncHpMpBar(PlayerInfo.CurrentHp, PlayerInfo.MaxHp, PlayerInfo.CurrentMp, PlayerInfo.MaxMp);
+}
+
+void APlayableCharacter::UpdateDungeonLocation()
+{
+	UDungeonManager::Instance()->UpdatePlayerLocation(this);
 }
 
 #pragma region 기본 조작 관련(이동, 점프)

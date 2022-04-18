@@ -179,10 +179,10 @@ private:
 	UPlayerHUD* PlayerHUD;
 public:
 	void SetPlayerHUD(UPlayerHUD* _PlayerHUD) { PlayerHUD = _PlayerHUD; };
-	
+
+
 	// 던전 관련
-public:
-	UDungeonRoom* CurRoom;
-	UDungeonCell* CurCell;
+private:
+	void UpdateDungeonLocation();
 	
 };
