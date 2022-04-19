@@ -10,6 +10,7 @@
 #include "PortFolio.h"
 #include "Core/GameManagerInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Manager/PathManager.h"
 #include "Monster/MonsterGeneralCharacter.h"
@@ -73,6 +74,10 @@ TArray<UDungeonCell*> UDungeonManager::GetCellsInside(FRect _Rect)
 
 void UDungeonManager::GenerateGrid(int _Width, int _Height)
 {
+	// 정보 저장
+	XSize = _Width;
+	YSize = _Height;
+	
 	// Tester 액터 생성
 	FActorSpawnParameters _SpawnParams = {};
 	_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
@@ -485,7 +490,7 @@ void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
 	UDungeonCell* _PlayerCell = FindClosestCell(_Player->GetActorLocation());
 	if(_PlayerCell == nullptr)
 	{
-		//LOGTEXT_ERROR(TEXT("!!!오류: 플레이어 Cell 찾기 실패"));
+		LOGTEXT_ERROR(TEXT("!!!오류: 플레이어 Cell 찾기 실패"));
 		return;
 	}
 		
@@ -495,7 +500,6 @@ void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
 	// 플레이어 방 입장
 	if(_PlayerCell->bRoom && _PlayerCell->Room != nullptr)
 	{
-		//LOGAUTO_WARN;
 		_PlayerCell->Room->PlayerEnter(_Player);
 	}
 }
@@ -505,13 +509,21 @@ UDungeonCell* UDungeonManager::FindClosestCell(FVector _Location)
 	_Location.Z = 0.f;
 	UDungeonCell* _Closest = nullptr;
 	float _Distance = 10000000000.f;
-	for(const TPair<FVector2D, UDungeonCell*>& _Map : CellMap)
+	for(int i = 0; i < YSize; i++)
 	{
-		float _CurDist = FVector::Distance(_Location, _Map.Value->Location);
-		if(_CurDist < _Distance)
+		for(int j = 0; j < XSize; j++)
 		{
-			_Distance = _CurDist;
-			_Closest = _Map.Value;
+			UDungeonCell* _Cell = CellMap.FindRef(FVector2D(j, i));
+			
+			if(_Cell != nullptr)
+			{
+				float _CurDist = FVector::Distance(_Cell->Location, _Location);
+				if(_CurDist < _Distance)
+				{
+					_Closest = _Cell;
+					_Distance = _CurDist;
+				}
+			}
 		}
 	}
 

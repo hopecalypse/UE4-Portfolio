@@ -95,6 +95,8 @@ public:
 public:
 	int Phase;
 	FTreeNode* RootNode;
+	int XSize;
+	int YSize;
 	TMap<FVector2D, UDungeonCell*> CellMap;
 	TArray<FTreeNode*> TreeNodeList;
 	TArray<TArray<FTreeNode*>> TreeDepthLists;

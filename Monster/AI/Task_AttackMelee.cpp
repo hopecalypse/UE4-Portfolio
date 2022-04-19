@@ -5,6 +5,7 @@
 
 #include "AIController.h"
 #include "MonsterAIController.h"
+#include "PortFolio.h"
 #include "Monster/MonsterGeneralCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -13,8 +14,9 @@
 
 UTask_AttackMelee::UTask_AttackMelee()
 {
-	bNotifyTick = 1;
-	bNotifyTaskFinished = 0;
+	bNotifyTick = true;
+	bNotifyTaskFinished = true;
+	bCreateNodeInstance = true;
 
 	AttackAccTime = 0.f;
 	AttackWaitTime = 0.f;
@@ -58,6 +60,7 @@ void UTask_AttackMelee::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	if(bWaitStarted && AttackAccTime >= AttackWaitTime)
 	{
+		LOGTEXT_LOG(TEXT("플레이어 공격 완료"));
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 

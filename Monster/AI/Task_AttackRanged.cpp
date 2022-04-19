@@ -12,6 +12,7 @@
 UTask_AttackRanged::UTask_AttackRanged()
 {
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UTask_AttackRanged::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
