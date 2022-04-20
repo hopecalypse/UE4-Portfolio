@@ -7,6 +7,8 @@
 #include "DungeonDataAsset.h"
 #include "DungeonRoom.h"
 #include "ObserverPawn.h"
+#include "PaperSprite.h"
+#include "PaperSpriteComponent.h"
 #include "PortFolio.h"
 #include "Core/GameManagerInstance.h"
 #include "Kismet/GameplayStatics.h"

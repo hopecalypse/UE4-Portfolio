@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "PlayableCharacter.generated.h"
 
+class UPaperSprite;
+class UPaperSpriteComponent;
 class UDungeonCell;
 class UDungeonRoom;
 class AProjectileGeneral;
@@ -180,9 +182,22 @@ private:
 public:
 	void SetPlayerHUD(UPlayerHUD* _PlayerHUD) { PlayerHUD = _PlayerHUD; };
 
-
 	// 던전 관련
 private:
 	void UpdateDungeonLocation();
+
+	// 미니맵
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	USpringArmComponent* MinimapArm;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	USceneCaptureComponent2D* MinimapSceneCapture;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	UTextureRenderTarget2D* MinimapRenderTarget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	UPaperSpriteComponent* MinimapSprite;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	UPaperSprite* PlayerSprite;
 	
 };

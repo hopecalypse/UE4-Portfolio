@@ -4,6 +4,8 @@
 #include "PlayableCharacter.h"
 
 #include "DrawDebugHelpers.h"
+#include "PaperSprite.h"
+#include "PaperSpriteComponent.h"
 #include "PlayerAnimInstance.h"
 #include "PortFolio.h"
 #include "Camera/CameraComponent.h"
@@ -17,6 +19,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Monster/MonsterGeneralCharacter.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "UI/PlayerHUD.h"
 
 // Sets default values
@@ -29,13 +32,27 @@ APlayableCharacter::APlayableCharacter()
 	static ConstructorHelpers::FClassFinder<AActor> _DecalBPClass(TEXT("Blueprint'/Game/_Blueprints/Combat/BP_PlayerCastingDecal.BP_PlayerCastingDecal_C'"));
 	if(_DecalBPClass.Succeeded())
 		ActingInfos.CastingDecalActorClass = _DecalBPClass.Class;
+	// 오브젝트 찾기
+	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> _MinimapRT(TEXT("TextureRenderTarget2D'/Game/_Textures/Minimap/MinimapRenderTarget.MinimapRenderTarget'"));
+	if(_MinimapRT.Succeeded())
+		MinimapRenderTarget = _MinimapRT.Object;
+	static ConstructorHelpers::FObjectFinder<UPaperSprite> _PlayerSprite(TEXT("PaperSprite'/Game/_Textures/Minimap/Player.Player'"));
+	if(_PlayerSprite.Succeeded())
+		PlayerSprite = _PlayerSprite.Object;
 
 	// 필요 컴포넌트 생성
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm"));
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Player Camera"));
 	FaceCaptureCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Face Capture"));
+
+	MinimapArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Minimap Spring Arm"));
+	MinimapSceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Minimap SceneCapture"));
+	MinimapSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Minimap Sprite"));
 	
 	// 컴포넌트 설정
+	MinimapArm->SetupAttachment(RootComponent);
+	MinimapSceneCapture->SetupAttachment(MinimapArm);
+	MinimapSprite->SetupAttachment(RootComponent);
 	SpringArm->SetupAttachment(RootComponent);
 	Camera->SetupAttachment(SpringArm);
 	SpringArm->TargetArmLength = 400.f;
@@ -51,7 +68,18 @@ APlayableCharacter::APlayableCharacter()
 	SpringArm->bInheritPitch = false;
 	SpringArm->bInheritRoll = false;
 	SpringArm->bInheritYaw = true;
-	
+
+	MinimapArm->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
+	MinimapArm->TargetArmLength = 31000.f;
+	MinimapSceneCapture->TextureTarget = MinimapRenderTarget;
+	MinimapSceneCapture->ProjectionType = ECameraProjectionMode::Orthographic;
+	MinimapSceneCapture->OrthoWidth = 14000.f;
+	MinimapSceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+	MinimapSprite->SetSprite(PlayerSprite);
+	MinimapSprite->SetRelativeScale3D(FVector(1.6f, 2.f, 2.f));
+	MinimapSprite->SetRelativeRotation(FRotator(0.f, -90.f, 90.f));
+	MinimapSprite->SetRelativeLocation(FVector(0.f, 0.f, 30000.f));
+	MinimapSprite->SetSpriteColor(FLinearColor::Blue);
 
 	// State 초기화
 	SetCurrentState(EPlayerState::E_Idle);
@@ -82,7 +110,6 @@ void APlayableCharacter::BeginPlay()
 	
 	// Face 캡쳐 소스 설정
 	FaceCaptureCamera->ShowOnlyComponents.Add(GetMesh());
-	
 }
 
 void APlayableCharacter::Tick(float DeltaTime)

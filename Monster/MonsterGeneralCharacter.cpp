@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "MonsterAnimInstance.h"
+#include "PaperSpriteComponent.h"
 #include "PortFolio.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
@@ -26,6 +27,11 @@ AMonsterGeneralCharacter::AMonsterGeneralCharacter()
 	static ConstructorHelpers::FClassFinder<UUserWidget> _BPHPbar(TEXT("WidgetBlueprint'/Game/_Blueprints/UI/WBP_MonsterHPBar.WBP_MonsterHPBar_C'"));
 	if(_BPHPbar.Succeeded())
 		HpbarWidgetComponent->SetWidgetClass(_BPHPbar.Class);
+	MinimapSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("Monster Minimap Sprite"));
+	static ConstructorHelpers::FObjectFinder<UPaperSprite> _MonSprite(TEXT("PaperSprite'/Game/_Textures/Minimap/Monster.Monster'"));
+	if(_MonSprite.Succeeded())
+		SpriteAsset = _MonSprite.Object;
+	
 
 	// 컴포넌트 설정
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
@@ -36,7 +42,13 @@ AMonsterGeneralCharacter::AMonsterGeneralCharacter()
 	HpbarWidgetComponent->SetupAttachment(GetMesh());
 	HpbarWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 180.f));
 	HpbarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	
+	MinimapSprite->SetupAttachment(RootComponent);
+
+	MinimapSprite->SetSprite(SpriteAsset);
+	MinimapSprite->SetRelativeScale3D(FVector(0.8f, 0.8f, 0.8f));
+	MinimapSprite->SetRelativeRotation(FRotator(0.f, -90.f, 90.f));
+	MinimapSprite->SetRelativeLocation(FVector(0.f, 0.f, 30000.f));
+	MinimapSprite->SetSpriteColor(FLinearColor::Red);
 	
 	// AI 컨트롤러 지정, 빙의 방식 지정
 	AIControllerClass = AMonsterAIController::StaticClass();

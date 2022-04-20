@@ -9,6 +9,8 @@
 #include "GameFramework/Character.h"
 #include "MonsterGeneralCharacter.generated.h"
 
+class UPaperSprite;
+class UPaperSpriteComponent;
 struct FPathNode;
 class UMonsterHpBar;
 class UWidgetComponent;
@@ -121,6 +123,12 @@ public:
 	bool bPathMoving;
 	void SetDestination(FVector _Destination);
 	void TickMove(float _DeltaTime);
+
+	// 미니맵
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	UPaperSpriteComponent* MinimapSprite;
+	UPaperSprite* SpriteAsset;
 
 
 };
