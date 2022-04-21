@@ -3,8 +3,13 @@
 
 #include "Dungeon/DungeonRoom.h"
 
+#include "DungeonCell.h"
+#include "DungeonDataAsset.h"
+#include "DungeonManager.h"
 #include "PortFolio.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/RectLightComponent.h"
+#include "Engine/RectLight.h"
 #include "Monster/MonsterGeneralCharacter.h"
 #include "Monster/AI/MonsterAIController.h"
 #include "Player/PlayableCharacter.h"
@@ -31,4 +36,23 @@ void UDungeonRoom::PlayerEnter(APlayableCharacter* _Player)
 			_MonsterAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bTracingPlayer"), true);
 		}
 	}
+}
+
+void UDungeonRoom::GenerateLevel()
+{
+	// 항상: Center Cell에 Lamp 생성하기
+	FActorSpawnParameters _SpawnParams;
+	_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
+
+	// Ceiling Lamp 메시 액터
+	TSubclassOf<AActor> _CeilingLightClass = UDungeonManager::Instance()->GetLevelData()->RoomCeilingLight;
+	AActor* _CeilingLight = GetOuter()->GetWorld()->SpawnActor<AActor>(_CeilingLightClass, CenterCell->Location + FVector(0.f, 0.f, 500.f), FRotator::ZeroRotator, _SpawnParams);
+	CenterCell->PropActors.Add(TEXT("CeilingLight"), _CeilingLight);
+
+	// Ceiling Rect 라이트
+	AActor* _RectLight = GetOuter()->GetWorld()->SpawnActor<AActor>(UDungeonManager::Instance()->GetLevelData()->RoomRectLight, CenterCell->Location + FVector(0.f, 0.f, 600.f), FRotator::ZeroRotator, _SpawnParams);
+	URectLightComponent* _LightComp = _RectLight->FindComponentByClass<URectLightComponent>();
+	
+	_LightComp->SetLightColor(FLinearColor::Red);
 }

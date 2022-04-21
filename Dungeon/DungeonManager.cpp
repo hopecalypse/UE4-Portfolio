@@ -133,6 +133,9 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 	float _Y = _Height * 300.f;
 	_ObserverPlayer->SetActorLocation(FVector(_X, _Y, FMath::Max(_Width, _Height) * 800.f));
 	_ObserverPlayer->SetActorRotation(FRotator(-90.f, 0.f, 0.f));
+
+	// 글로벌 라이트 생성
+	DirectionalLight = GetWorld()->SpawnActor<AActor>(LevelDataAsset->DirectionalLight, FVector::ZeroVector, FRotator::ZeroRotator, _SpawnParams);
 }
 
 void UDungeonManager::StartSplitTree(int _Count)
@@ -441,6 +444,14 @@ void UDungeonManager::UpdateCells()
 	}
 }
 
+void UDungeonManager::GenerateRoomLevels()
+{
+	for (int i = 0; i < RoomList.Num(); i++)
+	{
+		RoomList[i]->GenerateLevel();
+	}
+}
+
 void UDungeonManager::StartGame()
 {
 	// 플레이어 HUD 생성
@@ -484,6 +495,9 @@ void UDungeonManager::OnEndBlendToPlayer()
 	_PlayerController->Possess(Player);
 	// Debug 지우기
 	UKismetSystemLibrary::FlushPersistentDebugLines(this);
+
+	// Directional Light
+	DirectionalLight->Destroy();
 }
 
 void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
@@ -495,8 +509,8 @@ void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
 		LOGTEXT_ERROR(TEXT("!!!오류: 플레이어 Cell 찾기 실패"));
 		return;
 	}
-		
 
+	
 	//LOGTEXT_LOG(TEXT("현재 플레이어 Cell:%s, Room?%d"), *_PlayerCell->Matrix.ToString(), _PlayerCell->bRoom);
 
 	// 플레이어 방 입장

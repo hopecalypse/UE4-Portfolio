@@ -114,10 +114,10 @@ AProjectileGeneral* APlayerGunner::SpawnProjectileToGun(TSubclassOf<AProjectileG
 	FActorSpawnParameters _SpawnParam = {};
 	_SpawnParam.OverrideLevel = GetLevel();
 	_SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_SpawnParam.bDeferConstruction = true;
+	_SpawnParam.bDeferConstruction = false;
 
 	AProjectileGeneral* _GenProjectile = GetWorld()->SpawnActor<AProjectileGeneral>(_ProjectileClass, GunPoint->GetComponentLocation() - FVector(0.f, 0.f, 80.f), FRotator::ZeroRotator);
-	_GenProjectile->FinishSpawning(_GenProjectile->GetTransform());
+	//_GenProjectile->FinishSpawning(_GenProjectile->GetTransform());
 	_GenProjectile->SetLifeTime(_LifeTime);
 	_GenProjectile->SetAttackDamage(_AttackDamage);
 
@@ -131,10 +131,10 @@ void APlayerGunner::ActionTrigger_Skill1()
 	FActorSpawnParameters _SpawnParam = {};
 	_SpawnParam.OverrideLevel = GetLevel();
 	_SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_SpawnParam.bDeferConstruction = true;
+	_SpawnParam.bDeferConstruction = false;
 
 	AGunner_Grenade* _GenProjectile = GetWorld()->SpawnActor<AGunner_Grenade>(ActingInfos.Skill1Projectile, RighthandPoint->GetComponentLocation(), FRotator::ZeroRotator);
-	_GenProjectile->FinishSpawning(_GenProjectile->GetTransform());
+	//_GenProjectile->FinishSpawning(_GenProjectile->GetTransform());
 	_GenProjectile->SetAttackDamage(ActingInfos.Skill1AttackPower);
 	// 방향 설정
 	FVector _Direction = GetActorForwardVector() * 800.f;
@@ -190,11 +190,11 @@ void APlayerGunner::SpawnLeftMissiles_Skill2()
 	FActorSpawnParameters _SpawnParam = {};
 	_SpawnParam.OverrideLevel = GetLevel();
 	_SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_SpawnParam.bDeferConstruction = true;
+	//_SpawnParam.bDeferConstruction = true;
 	FVector _LocationOffset = FVector(-10.f, 0.f, 80.f);
 	
 	AGunner_Missile* _GenMissile = Cast<AGunner_Missile>(GetWorld()->SpawnActor<AGunner_Missile>(ActingInfos.Skill2Projectile, GetActorLocation() + _LocationOffset, FRotator::ZeroRotator, _SpawnParam));
-	_GenMissile->FinishSpawning(_GenMissile->GetTransform());
+	//_GenMissile->FinishSpawning(_GenMissile->GetTransform());
 	if(SavedTargetForMissile != nullptr)
 		_GenMissile->InitMissile(SavedTargetForMissile->GetRootComponent(), ActingInfos.Skill2AttackPower);
 	
@@ -232,10 +232,10 @@ void APlayerGunner::ActionTrigger_Skill3()
 	FActorSpawnParameters _SpawnParam = {};
 	_SpawnParam.OverrideLevel = GetLevel();
 	_SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_SpawnParam.bDeferConstruction = true;
+	//_SpawnParam.bDeferConstruction = true;
 
 	Skill3Laser = GetWorld()->SpawnActor<AActor>(Skill3LaserClass, _SpawnParam);
-	Skill3Laser->FinishSpawning(Skill3Laser->GetTransform());
+	//Skill3Laser->FinishSpawning(Skill3Laser->GetTransform());
 	
 	Skill3Laser->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	Skill3Laser->SetActorRelativeLocation(FVector(160.f, 55.f, 60.f));

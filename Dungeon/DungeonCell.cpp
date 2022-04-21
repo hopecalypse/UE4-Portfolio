@@ -48,15 +48,34 @@ void UDungeonCell::GenerateLevel()
 		// 방과 겹쳐있을 때
 		if(bRoom)
 		{
-			// 방과 이어지는 부분 벽을 제거하기
+			FActorSpawnParameters _SpawnParams;
+			_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
+			_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			// 방과 이어지는 부분 벽을 제거하기 + 문 생성하기
 			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(-1, 0)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(-1, 0)))
+			{
 				SetWall(false, 1);
+				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
+				GetOuter()->GetWorld()->SpawnActor<AActor>(_DoorWayClss, Location, FRotator::ZeroRotator, _SpawnParams);
+			}
 			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(0, 1)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(0, 1)))
+			{
 				SetWall(false, 2);
+				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
+				GetOuter()->GetWorld()->SpawnActor<AActor>(_DoorWayClss, Location, FRotator(0.f, 90.f, 0.f), _SpawnParams);
+			}
 			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(1, 0)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(1, 0)))
+			{
 				SetWall(false, 3);
+				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
+				GetOuter()->GetWorld()->SpawnActor<AActor>(_DoorWayClss, Location, FRotator(0.f, 180.f, 0.f), _SpawnParams);
+			}
 			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(0, -1)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(0, -1)))
+			{
 				SetWall(false, 4);
+				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
+				GetOuter()->GetWorld()->SpawnActor<AActor>(_DoorWayClss, Location, FRotator(0.f, 270.f, 0.f), _SpawnParams);
+			}
 		}
 		// 방과 겹쳐있지 않을 때
 		else

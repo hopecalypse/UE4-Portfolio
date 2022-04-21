@@ -46,6 +46,8 @@ public:
 	AActor* RightWall;
 	AActor* BottomWall;
 	TArray<AActor*> LevelActors;
+	// 추가 오브젝트
+	TMap<FString, AActor*> PropActors;
 
 	// 길찾기 관련
 public:
@@ -61,5 +63,10 @@ public:
 	void SpawnLevelActors();
 
 	void SetWall(bool _Value, int _Dir);
+
+	
+	// Prop 관련
+	
+	
 	
 };

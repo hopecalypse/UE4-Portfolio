@@ -27,11 +27,11 @@ public:
 public:
 	bool bPlayerStart;
 	bool bBossRoom;
+	bool bPlayerEntered;
 
 public:
 	void PlayerEnter(APlayableCharacter* _Player);
 
-private:
-	bool bPlayerEntered;
-	
+public:
+	void GenerateLevel();
 };

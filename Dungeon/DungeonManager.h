@@ -104,12 +104,15 @@ public:
 	UDungeonRoom* PlayerStartRoom;
 	UDungeonRoom* BossRoom;
 	APawn* ObserverPawn;
+	AActor* DirectionalLight;
 
 	// 0. 그리드 생성하기
 public:
 	void GenerateGrid(int _Width, int Height);
 	// Cell 레벨 생성하기
 	void UpdateCells();
+	// Room 레벨 생성하기
+	void GenerateRoomLevels();
 
 	// 1. 분할하기
 public:

@@ -18,6 +18,8 @@ class PORTFOLIO_API UDungeonDataAsset : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> TesterFloor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> DirectionalLight;
 
 	// 레벨
 public:
@@ -25,11 +27,20 @@ public:
 	TSubclassOf<AActor> Floor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> LeftWall;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> LeftDoorWall;
 
 	// 몬스터
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSubclassOf<AMonsterGeneralCharacter>> RoomMonsters;
+
+	// Prop들
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> RoomCeilingLight;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> RoomRectLight;
 	
 	
 };

@@ -87,6 +87,7 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 	else if(Phase == 6)
 	{
 		UDungeonManager::Instance()->UpdateCells();
+		UDungeonManager::Instance()->GenerateRoomLevels();
 		Phase++;
 	}
 	// 7. 방 분류하기
