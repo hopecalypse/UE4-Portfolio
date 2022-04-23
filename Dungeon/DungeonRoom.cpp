@@ -17,10 +17,16 @@
 void UDungeonRoom::PlayerEnter(APlayableCharacter* _Player)
 {
 	if(this == nullptr)
+	{
+		LOGAUTO_LOG;
+		LOGAUTO_ERROR;
 		return;
-	if(bPlayerEntered || bPlayerStart)
+	}
+	if(this->bPlayerStart)
 		return;
-	if(Monsters.Num() == 0)
+	if(this->bPlayerEntered)
+		return;
+	if(this->Monsters.Num() == 0)
 		return;
 
 	LOGTEXT_ERROR(TEXT("플레이어 몬스터 방(%s) 처음 입장함"), *GetName());
@@ -54,5 +60,8 @@ void UDungeonRoom::GenerateLevel()
 	AActor* _RectLight = GetOuter()->GetWorld()->SpawnActor<AActor>(UDungeonManager::Instance()->GetLevelData()->RoomRectLight, CenterCell->Location + FVector(0.f, 0.f, 600.f), FRotator::ZeroRotator, _SpawnParams);
 	URectLightComponent* _LightComp = _RectLight->FindComponentByClass<URectLightComponent>();
 	
-	_LightComp->SetLightColor(FLinearColor::Red);
+	float _Width = Rect->Width * 600.f;
+	float _Height = Rect->Height * 600.f;
+	_LightComp->SetSourceWidth(_Width);
+	_LightComp->SetSourceHeight(_Height);
 }

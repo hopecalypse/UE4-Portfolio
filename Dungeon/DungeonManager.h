@@ -101,6 +101,7 @@ public:
 	TArray<FTreeNode*> TreeNodeList;
 	TArray<TArray<FTreeNode*>> TreeDepthLists;
 	TArray<UDungeonRoom*> RoomList;
+	TArray<UDungeonCell*> RoadList;
 	UDungeonRoom* PlayerStartRoom;
 	UDungeonRoom* BossRoom;
 	APawn* ObserverPawn;
@@ -111,8 +112,6 @@ public:
 	void GenerateGrid(int _Width, int Height);
 	// Cell 레벨 생성하기
 	void UpdateCells();
-	// Room 레벨 생성하기
-	void GenerateRoomLevels();
 
 	// 1. 분할하기
 public:
@@ -145,6 +144,8 @@ public:
 	void TestPathFinding();
 
 	// 6. 소품 생성
+public:
+	void GenerateProps();
 
 	// 7. 몬스터 생성
 public:

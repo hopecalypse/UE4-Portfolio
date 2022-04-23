@@ -95,6 +95,8 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 			
 			AActor* _Visualizer = GetWorld()->SpawnActor<AActor>(LevelDataAsset->TesterFloor, _GenCell->Location, FRotator::ZeroRotator, _SpawnParams);
 			_GenCell->Visualizer = _Visualizer;
+			_GenCell->bRoom = false;
+			_GenCell->bRoad = false;
 			
 			// 16개의 PathNode 추가
 			for(int k = 0; k <= 4; k++)
@@ -318,6 +320,9 @@ void UDungeonManager::GenerateRoad(FTreeNode* _TreeNode)
 		UDungeonCell* _RoadCell = CellMap.FindRef(FVector2D(i, _LeftCenter.Y));
 		_RoadCell->bRoad = true;
 		UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Blue, FRotator::ZeroRotator, 10.f);
+
+		// Road 리스트에 추가
+		RoadList.AddUnique(_RoadCell);
 	}
 
 	// 세로
@@ -326,6 +331,9 @@ void UDungeonManager::GenerateRoad(FTreeNode* _TreeNode)
 		UDungeonCell* _RoadCell = CellMap.FindRef(FVector2D(_LeftCenter.X, i));
 		_RoadCell->bRoad = true;
 		UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Red, FRotator::ZeroRotator, 10.f);
+
+		// Road 리스트에 추가
+		RoadList.AddUnique(_RoadCell);
 	}
 	
 	GenerateRoad(_TreeNode->Left);
@@ -398,6 +406,28 @@ void UDungeonManager::TestPathFinding()
 	UKismetSystemLibrary::DrawDebugPoint(this, _End, 10.f, FLinearColor::Red, 100.f);
 }
 
+void UDungeonManager::GenerateProps()
+{
+	// Room 내부에서 구현되는 것
+	// Rect Light, 중앙 램프
+	for (int i = 0; i < RoomList.Num(); i++)
+	{
+		RoomList[i]->GenerateLevel();
+	}
+
+	// 통로의 옆벽에 횃불 세우기
+	for(int i = 0; i < RoadList.Num(); i++)
+	{
+		if(i % 3 == 0)
+		{
+			RoadList[i]->AddProp(LevelDataAsset->LeftWallLamp, TEXT("WallLamp"), true);
+		}
+	}
+
+	// 방에 기둥 + 횟불 세우기
+	
+}
+
 void UDungeonManager::GenerateMonster()
 {
 	// 플레이어 시작방, 보스방이 아닌 방에 몬스터 랜덤 생성하기
@@ -441,14 +471,6 @@ void UDungeonManager::UpdateCells()
 	for (auto _Cell : CellMap)
 	{
 		_Cell.Value->GenerateLevel();
-	}
-}
-
-void UDungeonManager::GenerateRoomLevels()
-{
-	for (int i = 0; i < RoomList.Num(); i++)
-	{
-		RoomList[i]->GenerateLevel();
 	}
 }
 

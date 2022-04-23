@@ -199,5 +199,37 @@ void UDungeonCell::SetWall(bool _Value, int _Dir)
 	}
 }
 
+void UDungeonCell::AddProp(TSubclassOf<AActor> _PropClass, FString _Name, bool _bOnWall)
+{
+	FActorSpawnParameters _SpawnParam;
+	_SpawnParam.OverrideLevel = GetWorld()->GetCurrentLevel();
+	_SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	if(_bOnWall && !bRoom)
+	{
+		if(bLeftWall)
+		{
+			AActor* _Prop = GetWorld()->SpawnActor<AActor>(_PropClass, Location, FRotator::ZeroRotator, _SpawnParam);
+			PropActors.Add(_Name + TEXT("Left"), _Prop);
+		}
+		if(bTopWall)
+		{
+			AActor* _Prop = GetWorld()->SpawnActor<AActor>(_PropClass, Location, FRotator(0.f, 90.f, 0.f), _SpawnParam);
+			PropActors.Add(_Name + TEXT("Top"), _Prop);
+		}
+		if(bRightWall)
+		{
+			AActor* _Prop = GetWorld()->SpawnActor<AActor>(_PropClass, Location, FRotator(0.f, 180.f, 0.f), _SpawnParam);
+			PropActors.Add(_Name + TEXT("Right"), _Prop);
+		}
+		if(bBottomWall)
+		{
+			AActor* _Prop = GetWorld()->SpawnActor<AActor>(_PropClass, Location, FRotator(0.f, 270.f, 0.f), _SpawnParam);
+			PropActors.Add(_Name + TEXT("Bottom"), _Prop);
+		}
+		
+	}
+}
+
 
 

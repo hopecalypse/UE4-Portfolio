@@ -66,7 +66,7 @@ public:
 
 	
 	// Prop 관련
-	
+	void AddProp(TSubclassOf<AActor> _PropClass, FString _Name, bool _bOnWall = false);
 	
 	
 };
