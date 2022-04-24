@@ -204,8 +204,11 @@ void UDungeonCell::AddProp(TSubclassOf<AActor> _PropClass, FString _Name, bool _
 	FActorSpawnParameters _SpawnParam;
 	_SpawnParam.OverrideLevel = GetWorld()->GetCurrentLevel();
 	_SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	if(_Name == TEXT("WallLamp") && bRoom && bRoad)
+		return;
 	
-	if(_bOnWall && !bRoom)
+	if(_bOnWall)
 	{
 		if(bLeftWall)
 		{
@@ -228,6 +231,12 @@ void UDungeonCell::AddProp(TSubclassOf<AActor> _PropClass, FString _Name, bool _
 			PropActors.Add(_Name + TEXT("Bottom"), _Prop);
 		}
 		
+	}
+	
+	else
+	{
+		AActor* _Prop = GetWorld()->SpawnActor<AActor>(_PropClass, Location, FRotator::ZeroRotator, _SpawnParam);
+		PropActors.Add(_Name, _Prop);
 	}
 }
 

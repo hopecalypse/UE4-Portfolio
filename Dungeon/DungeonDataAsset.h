@@ -43,6 +43,7 @@ public:
 	TSubclassOf<AActor> RoomRectLight;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> LeftWallLamp;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> Pillar;
 	
 };

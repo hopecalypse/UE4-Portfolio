@@ -133,7 +133,7 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 	APawn* _ObserverPlayer = UGameplayStatics::GetPlayerPawn(GetOuter(), 0);
 	float _X = _Width * 300.f;
 	float _Y = _Height * 300.f;
-	_ObserverPlayer->SetActorLocation(FVector(_X, _Y, FMath::Max(_Width, _Height) * 800.f));
+	_ObserverPlayer->SetActorLocation(FVector(_X, _Y, FMath::Max(_Width, _Height) * 700.f));
 	_ObserverPlayer->SetActorRotation(FRotator(-90.f, 0.f, 0.f));
 
 	// 글로벌 라이트 생성
@@ -424,7 +424,49 @@ void UDungeonManager::GenerateProps()
 		}
 	}
 
-	// 방에 기둥 + 횟불 세우기
+	// 방의 벽에 횟불 만들기
+	for(int i = 0; i < RoomList.Num(); i++)
+	{
+		int _Count = 0;
+		for(int j = 0; j < RoomList[i]->Cells.Num(); j++)
+		{
+			int _WallCount = RoomList[i]->Cells[j]->bLeftWall + RoomList[i]->Cells[j]->bTopWall + RoomList[i]->Cells[j]->bRightWall + RoomList[i]->Cells[j]->bBottomWall;
+			if(_WallCount == 1)
+			{
+				if(_Count % 3 == 0)
+				{
+					RoomList[i]->Cells[j]->AddProp(LevelDataAsset->LeftWallLamp, TEXT("WallLamp"), true);
+				}
+				_Count++;
+			}
+		}
+	}
+	
+	// 방에 기둥 세우기(Obstacle)
+	for(int i = 0; i < RoomList.Num(); i++)
+	{
+		int _XStart = RoomList[i]->Rect->X;
+		int _XEnd = _XStart + RoomList[i]->Rect->Width - 1;
+		int _YStart = RoomList[i]->Rect->Y;
+		int _YEnd = _YStart + RoomList[i]->Rect->Height - 1;
+		int _XCount = RoomList[i]->Rect->Width % 2 == 1 ? 2 : 3;
+		int _YCount = RoomList[i]->Rect->Height % 2 == 1 ? 2 : 3;
+
+		for(int y = _YStart + 1; y <= _YEnd - 1; y++)
+		{
+			if((y - _YStart) % _YCount == 1)
+			{
+				for(int x = _XStart + 1; x <= _XEnd - 1; x++)
+				{
+					if((x - _XStart) % _XCount == 1)
+					{
+						UDungeonCell* _Cell = CellMap.FindRef(FVector2D(x, y));
+						_Cell->AddProp(LevelDataAsset->Pillar, TEXT("Pillar"), false);
+					}
+				}
+			}
+		}
+	}
 	
 }
 
