@@ -25,6 +25,7 @@ private:
 private:
 	UButton* ProgressButton;
 	UTextBlock* ButtonText;
+	UTextBlock* DescribeText;
 	int Phase;
 	int Visualize = 0;
 

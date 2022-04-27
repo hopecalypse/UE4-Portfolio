@@ -124,8 +124,7 @@ public:
 
 	// ! 인게임 필요 자료형 //
 public:
-
-	// 플레이어 정보
+	// 현재 캐릭터 정보
 	UPROPERTY(VisibleAnywhere, Category="Player Info")
 	FPlayerInfo PlayerInfo;
 

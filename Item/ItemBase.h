@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ItemBase.generated.h"
 
+class USphereComponent;
 UCLASS()
 class PORTFOLIO_API AItemBase : public AActor
 {
@@ -20,6 +21,8 @@ public:
 
 	// 필요 컴포넌트
 private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	USphereComponent* RootSphere;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	UStaticMeshComponent* StaticMesh;
 

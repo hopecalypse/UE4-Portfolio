@@ -454,7 +454,13 @@ void UDungeonManager::GenerateProps()
 
 		for(int y = _YStart + 1; y <= _YEnd - 1; y++)
 		{
+			bool _YFlag = false;
 			if((y - _YStart) % _YCount == 1)
+				_YFlag = true;
+			// if(_YCount == 3 && ((y - _YStart) % _YCount == 2) && y == _YEnd - 1)
+			// 	_YFlag = true;
+
+			if(_YFlag)
 			{
 				for(int x = _XStart + 1; x <= _XEnd - 1; x++)
 				{

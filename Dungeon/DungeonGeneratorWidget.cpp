@@ -25,6 +25,7 @@ void UDungeonGeneratorWidget::NativeConstruct()
 	ButtonText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ButtonText")));
 	SplitCanvas = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("SplitCanvas")));
 	SplitCountText = Cast<UEditableText>(GetWidgetFromName(TEXT("SplitCountText")));
+	DescribeText = Cast<UTextBlock>(GetWidgetFromName(TEXT("DescribeText")));
 
 	// 델리게이트 등록
 	ProgressButton->OnClicked.AddDynamic(this, &UDungeonGeneratorWidget::OnClickNextButton);
@@ -43,6 +44,7 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 		GridCanvas->SetVisibility(ESlateVisibility::Hidden);
 		SplitCanvas->SetVisibility(ESlateVisibility::Visible);
 		ButtonText->SetText(FText::FromString(TEXT("분할")));
+		DescribeText->SetText(FText::FromString(TEXT("BSP 트리 공간 분할")));
 		Phase++;
 	}
 	// 1. 분할
@@ -69,6 +71,7 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 	else if(Phase == 3)
 	{
 		UDungeonManager::Instance()->StartGenerateRoom();
+		DescribeText->SetText(FText::FromString(TEXT("랜덤 방 생성")));
 		Phase++;
 	}
 	// 4. 방 구현
@@ -81,6 +84,7 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 	else if(Phase == 5)
 	{
 		UDungeonManager::Instance()->StartGenerateRoad();
+		DescribeText->SetText(FText::FromString(TEXT("통로 생성")));
 		Phase++;
 	}
 	// 6. 방 구현
@@ -88,12 +92,14 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 	{
 		UDungeonManager::Instance()->UpdateCells();
 		UDungeonManager::Instance()->GenerateProps();
+		DescribeText->SetText(FText::FromString(TEXT("레벨 액터 구현")));
 		Phase++;
 	}
 	// 7. 방 분류하기
 	else if(Phase == 7)
 	{
 		UDungeonManager::Instance()->SortRooms();
+		DescribeText->SetText(FText::FromString(TEXT("플레이어 시작 / 보스 방 선택")));
 		Phase++;
 	}
 	// 8. 길찾기 테스트: 이동가능 Node 표시
@@ -106,18 +112,22 @@ void UDungeonGeneratorWidget::OnClickNextButton()
 			FLinearColor _Color = _PathNode.Value->bObstacle ? FLinearColor::Red : FLinearColor::Green;
 			UKismetSystemLibrary::DrawDebugPoint(this, _PathNode.Value->Location, 10.f, _Color, 100.f);
 		}
+		DescribeText->SetText(FText::FromString(TEXT("A* 패스파인딩 노드 생성")));
 		Phase++;
 	}
 	// 9. 길찾기 테스트: 플레이어~보스 A* 경로탐색
 	else if(Phase == 9)
 	{
 		UDungeonManager::Instance()->TestPathFinding();
+		DescribeText->SetText(FText::FromString(TEXT("스테이지 진행 경로 탐색")));
 		Phase++;
 	}
 	// 10. 몬스터 생성
 	else if(Phase == 10)
 	{
 		UDungeonManager::Instance()->GenerateMonster();
+		DescribeText->SetText(FText::FromString(TEXT("몬스터 생성")));
+		ButtonText->SetText(FText::FromString(TEXT("시작")));
 		Phase++;
 	}
 	// 999. 플레이어 스폰

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CustomEnums.h"
 #include "Combat/EnemyProjectile.h"
+#include "Engine/DataTable.h"
 #include "CustomStructs.generated.h"
 
 class AProjectileGeneral;
@@ -39,7 +40,28 @@ struct FPlayerInfo
     float MaxMp = 50.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
     float CurrentMp = 50.f;
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	float CurrentExp = 0.f;
+};
+
+// 플레이어 레벨 스탯 테이블
+USTRUCT(Atomic, BlueprintType)
+struct FClassStat : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Hp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Mp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BasicAttackDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Skill1Damage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Skill2Damage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Skill3Damage;
 };
 
 // 클래스의 스킬 정보 정의 구조체
