@@ -51,9 +51,9 @@ struct FClassStat : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Hp;
+	int Hp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Mp;
+	int Mp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BasicAttackDamage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

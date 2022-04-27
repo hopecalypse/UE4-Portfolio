@@ -38,4 +38,6 @@ private:
 	void RotatePitch(float _Value);
 	void Rotate(float _DeltaTime);
 
+	void ResetTransform();
+
 };

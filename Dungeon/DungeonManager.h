@@ -106,6 +106,8 @@ public:
 	UDungeonRoom* BossRoom;
 	APawn* ObserverPawn;
 	AActor* DirectionalLight;
+	FVector ObserverOriginLocation;
+	FRotator ObserverOriginRotation;
 
 	// 0. 그리드 생성하기
 public:

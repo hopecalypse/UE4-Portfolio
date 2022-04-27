@@ -97,13 +97,14 @@ void APlayableCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// // 플레이어 HUD 위젯 초기화
-	// PlayerHUD = Cast<APortFolioGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPlayerHUDWidget();
+	// 플레이어 HUD 위젯 초기화
 	if(PlayerHUD == nullptr)
 		PlayerHUD = UDungeonManager::Instance()->PlayerHUD;
 	if(PlayerHUD == nullptr)
 		PlayerHUD = Cast<APortFolioGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPlayerHUDWidget();
-	// HP, MP바
+	// 처음 캐릭터 스탯 가져오기
+	SetPlayerStat(1);
+	// HP, MP바 위젯 초기화
 	PlayerHUD->SyncHpMpBar(PlayerInfo.CurrentHp, PlayerInfo.MaxHp, PlayerInfo.CurrentMp, PlayerInfo.MaxMp);
 	// 스킬 이미지
 	PlayerHUD->SetHUDSkillImages(ActingInfos);
@@ -611,3 +612,21 @@ void APlayableCharacter::EndActingFromNotify()
 
 #pragma endregion
 
+void APlayableCharacter::SetPlayerStat(int16 Level)
+{
+	UDataTable* _StatTable = Cast<UGameManagerInstance>(GetGameInstance())->ClassStatTable;
+
+	FString _ClassName;
+	if(Class == EPlayerClass::E_Warrior)
+		_ClassName = TEXT("Warrior");
+	else if(Class == EPlayerClass::E_Mage)
+		_ClassName = TEXT("Mage");
+	else
+		_ClassName = TEXT("Gunner");
+
+	const FClassStat* _FoundStat = _StatTable->FindRow<FClassStat>(FName(_ClassName + FString::FromInt(Level)), TEXT(""));
+
+	LOGTEXT_ERROR(TEXT("%s"), *_StatTable->GetName());
+	LOGTEXT_WARN(TEXT("%s"), *FName(*_ClassName + FString::FromInt(Level)).ToString());
+	LOGTEXT_LOG(TEXT("%d"), _FoundStat->Hp);
+}

@@ -30,7 +30,9 @@ APlayerGunner::APlayerGunner()
 	static ConstructorHelpers::FClassFinder<AActor> _TargetBP(TEXT("Blueprint'/Game/_Blueprints/Combat/Gunner/BP_EnemyTargetUI.BP_EnemyTargetUI_C'"));
 	if(_TargetBP.Succeeded())
 		TargetActorBP = _TargetBP.Class;
-	
+
+
+	Class = EPlayerClass::E_Gunner;
 	
 	// Gun Point 만들기
 	GunPoint = CreateDefaultSubobject<USceneComponent>(TEXT("GunPoint"));

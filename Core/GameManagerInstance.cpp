@@ -21,6 +21,10 @@ UGameManagerInstance::UGameManagerInstance()
 	static ConstructorHelpers::FClassFinder<APlayableCharacter> _GunnerBP(TEXT("Blueprint'/Game/_Blueprints/Player/BP_PlayerGunner.BP_PlayerGunner_C'"));
 	if(_GunnerBP.Succeeded())
 		GunnerBP = _GunnerBP.Class;
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> _ClassStatTable(TEXT("DataTable'/Game/_Datas/DT_ClassStat.DT_ClassStat'"));
+	if(_ClassStatTable.Succeeded())
+		ClassStatTable = _ClassStatTable.Object;
 }
 
 void UGameManagerInstance::Init()

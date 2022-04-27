@@ -131,10 +131,12 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 
 	// 옵저버 플레이어 위치 조정
 	APawn* _ObserverPlayer = UGameplayStatics::GetPlayerPawn(GetOuter(), 0);
-	float _X = _Width * 300.f;
-	float _Y = _Height * 300.f;
+	float _X = _Height * 300.f;
+	float _Y = _Width * 300.f;
 	_ObserverPlayer->SetActorLocation(FVector(_X, _Y, FMath::Max(_Width, _Height) * 700.f));
 	_ObserverPlayer->SetActorRotation(FRotator(-90.f, 0.f, 0.f));
+	ObserverOriginLocation = _ObserverPlayer->GetActorLocation();
+	ObserverOriginRotation = _ObserverPlayer->GetActorRotation();
 
 	// 글로벌 라이트 생성
 	DirectionalLight = GetWorld()->SpawnActor<AActor>(LevelDataAsset->DirectionalLight, FVector::ZeroVector, FRotator::ZeroRotator, _SpawnParams);

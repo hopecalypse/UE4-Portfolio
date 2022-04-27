@@ -124,9 +124,15 @@ public:
 
 	// ! 인게임 필요 자료형 //
 public:
-	// 현재 캐릭터 정보
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EPlayerClass Class;
+	
+	// 현재 캐릭터 정보(스탯)
 	UPROPERTY(VisibleAnywhere, Category="Player Info")
 	FPlayerInfo PlayerInfo;
+
+	// 플레이어 스탯 가져오기 + 설정
+	void SetPlayerStat(int16 Level);
 
 	// 공격, 스킬 정보
 	UPROPERTY(EditAnywhere, Category="Acting Info")

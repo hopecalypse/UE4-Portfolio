@@ -44,6 +44,10 @@ public:
 public:
 	void SwitchCharacter(UClass* _CurClass, APlayableCharacter* _Character);
 
+	// 플레이어 스탯
+public:
+	UDataTable* ClassStatTable;
+
 	// 생성자, 소멸자(각 매니저들 Destory 호출)
 //public:
 //	UGameManagerInstance();

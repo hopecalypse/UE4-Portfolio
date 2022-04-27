@@ -32,6 +32,8 @@ APlayerWarrior::APlayerWarrior()
 	{
 		GetMesh()->SetAnimInstanceClass(WarriorABP.Class);
 	}
+
+	Class = EPlayerClass::E_Warrior;
 }
 
 void APlayerWarrior::BeginPlay()

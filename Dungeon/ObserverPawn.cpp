@@ -3,6 +3,7 @@
 
 #include "Dungeon/ObserverPawn.h"
 
+#include "DungeonManager.h"
 #include "Camera/CameraComponent.h"
 
 AObserverPawn::AObserverPawn()
@@ -38,6 +39,8 @@ void AObserverPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AObserverPawn::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("RotateYaw"), this, &AObserverPawn::RotateYaw);
 	PlayerInputComponent->BindAxis(TEXT("RotatePitch"), this, &AObserverPawn::RotatePitch);
+
+	PlayerInputComponent->BindAction(TEXT("Reset"), IE_Pressed, this, &AObserverPawn::ResetTransform);
 }
 
 void AObserverPawn::MoveForward(float _Value)
@@ -76,5 +79,11 @@ void AObserverPawn::Rotate(float _DeltaTime)
 
 	SetActorRotation(_Rot);
 	Rotator = FRotator::ZeroRotator;
+}
+
+void AObserverPawn::ResetTransform()
+{
+	SetActorLocation(UDungeonManager::Instance()->ObserverOriginLocation);
+	SetActorRotation(UDungeonManager::Instance()->ObserverOriginRotation);
 }
 

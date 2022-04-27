@@ -23,6 +23,8 @@ APlayerMage::APlayerMage()
 	static ConstructorHelpers::FClassFinder<UAnimInstance> _MageABP(TEXT("AnimBlueprint'/Game/_Animations/Player/ABP_Mage.ABP_Mage_C'"));
 	if(_MageABP.Succeeded())
 		GetMesh()->SetAnimInstanceClass(_MageABP.Class);
+
+	Class = EPlayerClass::E_Mage;
 }
 
 void APlayerMage::BeginPlay()
