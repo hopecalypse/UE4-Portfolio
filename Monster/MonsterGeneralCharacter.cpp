@@ -11,6 +11,7 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Manager/PathManager.h"
 #include "Monster/AI/MonsterAIController.h"
@@ -116,12 +117,18 @@ void AMonsterGeneralCharacter::ChangeMonsterHp(float _HpChangeValue)
 void AMonsterGeneralCharacter::DieImmediately()
 {
 	//LOGTEXT_WARN(TEXT("몬스터 Die"));
+	if(MonsterState == EMonsterState::E_Dying)
+		return;
 	
 	// 충돌 불가
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("NoCollision"));
 	HpbarWidgetComponent->SetVisibility(false);
 	SetMonsterState(EMonsterState::E_Dying);
 	bNeverChangableState = true;
+	
+	// 플레이어 경험치 획득
+	APlayableCharacter* _Player = Cast<APlayableCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	_Player->GetExp(MonsterInfo.Exp);
 }
 
 void AMonsterGeneralCharacter::SetMovementSpeed(float _Speed)

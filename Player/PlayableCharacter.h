@@ -144,6 +144,12 @@ public:
 	bool bSkill2Cooling;
 	bool bSkill3Cooling;
 
+	// 경험치 획득
+	void GetExp(int32 _Exp);
+	// 레벨업
+	void LevelUp();
+	TSubclassOf<AActor> LevelUpAClass;
+
 private:
 	// 플레이어 현재 상태
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"), Category="Player Status")

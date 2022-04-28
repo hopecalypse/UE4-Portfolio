@@ -582,7 +582,8 @@ void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
 		return;
 	}
 
-	
+	if(_PlayerCell->Room == nullptr)
+		return;
 	//LOGTEXT_LOG(TEXT("현재 플레이어 Cell:%s, Room?%d"), *_PlayerCell->Matrix.ToString(), _PlayerCell->bRoom);
 
 	// 플레이어 방 입장

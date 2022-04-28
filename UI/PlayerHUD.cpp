@@ -78,6 +78,12 @@ void UPlayerHUD::GetWidgetUIObject()
 		HpBarText = Cast<UTextBlock>(GetWidgetFromName(TEXT("HpBarText")));
 	if(MpBarText == nullptr)
 		MpBarText = Cast<UTextBlock>(GetWidgetFromName(TEXT("MpBarText")));
+	if(ExpProgressBar == nullptr)
+		ExpProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("ExpBar")));
+	if(ClassText == nullptr)
+		ClassText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ClassText")));
+	if(LevelText == nullptr)
+		LevelText = Cast<UTextBlock>(GetWidgetFromName(TEXT("LevelText")));
 }
 
 void UPlayerHUD::SyncHpMpBar(float _CurHp, float _MaxHp, float _CurMp, float _MaxMp)
@@ -96,6 +102,12 @@ void UPlayerHUD::SyncHpMpBar(float _CurHp, float _MaxHp, float _CurMp, float _Ma
 	MpProgressBar->SetPercent(_MpPer);
 	HpBarText->SetText(FText::FromString(FString::FromInt(_CurHpInt) + TEXT(" / ") + FString::FromInt(_MaxHpInt)));
 	MpBarText->SetText(FText::FromString(FString::FromInt(_CurMpInt) + TEXT(" / ") + FString::FromInt(_MaxMpInt)));
+}
+
+void UPlayerHUD::SyncExpBar(int _CurExp, int _MaxExp)
+{
+	float _Per = float(_CurExp) / float(_MaxExp);
+	ExpProgressBar->SetPercent(_Per);
 }
 
 

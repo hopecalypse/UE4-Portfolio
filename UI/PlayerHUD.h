@@ -25,8 +25,12 @@ protected:
 private:
 	UProgressBar* HpProgressBar;
 	UProgressBar* MpProgressBar;
+	UProgressBar* ExpProgressBar;
 	UTextBlock* HpBarText;
 	UTextBlock* MpBarText;
+public:
+	UTextBlock* ClassText;
+	UTextBlock* LevelText;
 
 	UImage* FaceImage;
 
@@ -35,6 +39,7 @@ private:
 	// HP바 관련
 public:
 	void SyncHpMpBar(float _CurHp, float _MaxHp, float _CurMp, float _MaxMp);
+	void SyncExpBar(int _CurExp, int _MaxExp);
 
 	// Acting 이미지 세팅
 public:

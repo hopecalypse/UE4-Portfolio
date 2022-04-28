@@ -65,3 +65,13 @@ enum class EMonsterState : uint8
 	E_HitReact,
 	E_Dying,
 };
+
+UENUM(BlueprintType)
+enum class EMonsterAttackType : uint8
+{
+	E_BasicAttack,
+	E_Pattern1,
+	E_Pattern2,
+	E_Pattern3,
+	
+};

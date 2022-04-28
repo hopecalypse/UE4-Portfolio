@@ -33,6 +33,13 @@ struct FPlayerInfo
 	EPlayerClass Class;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	int Level = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	int NextExp = 100.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	int CurrentExp = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	float MaxHp = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	float CurrentHp = 100.f;
@@ -40,8 +47,6 @@ struct FPlayerInfo
     float MaxMp = 50.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
     float CurrentMp = 50.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
-	float CurrentExp = 0.f;
 };
 
 // 플레이어 레벨 스탯 테이블
@@ -62,6 +67,8 @@ public:
 	float Skill2Damage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Skill3Damage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 NextExp;
 };
 
 // 클래스의 스킬 정보 정의 구조체
@@ -194,7 +201,9 @@ struct FMonsterInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	float AttackPoint = 10.f;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
+	int32 Exp;
 };
 
 USTRUCT(Atomic, BlueprintType)

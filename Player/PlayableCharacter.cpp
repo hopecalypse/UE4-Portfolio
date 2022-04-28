@@ -13,6 +13,7 @@
 #include "Combat/ProjectileGeneral.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Components/TextBlock.h"
 #include "Core/GameManagerInstance.h"
 #include "Core/PortFolioGameModeBase.h"
 #include "Dungeon/DungeonManager.h"
@@ -32,6 +33,9 @@ APlayableCharacter::APlayableCharacter()
 	static ConstructorHelpers::FClassFinder<AActor> _DecalBPClass(TEXT("Blueprint'/Game/_Blueprints/Combat/BP_PlayerCastingDecal.BP_PlayerCastingDecal_C'"));
 	if(_DecalBPClass.Succeeded())
 		ActingInfos.CastingDecalActorClass = _DecalBPClass.Class;
+	static ConstructorHelpers::FClassFinder<AActor> _LvlUpClass(TEXT("Blueprint'/Game/_Blueprints/Player/BP_LevelUpParticle.BP_LevelUpParticle_C'"));
+	if(_LvlUpClass.Succeeded())
+		LevelUpAClass = _LvlUpClass.Class;
 	// 오브젝트 찾기
 	static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> _MinimapRT(TEXT("TextureRenderTarget2D'/Game/_Textures/Minimap/MinimapRenderTarget.MinimapRenderTarget'"));
 	if(_MinimapRT.Succeeded())
@@ -103,9 +107,12 @@ void APlayableCharacter::BeginPlay()
 	if(PlayerHUD == nullptr)
 		PlayerHUD = Cast<APortFolioGameModeBase>(UGameplayStatics::GetGameMode(GetWorld()))->GetPlayerHUDWidget();
 	// 처음 캐릭터 스탯 가져오기
+	PlayerInfo.Level = 1;
 	SetPlayerStat(1);
 	// HP, MP바 위젯 초기화
 	PlayerHUD->SyncHpMpBar(PlayerInfo.CurrentHp, PlayerInfo.MaxHp, PlayerInfo.CurrentMp, PlayerInfo.MaxMp);
+	// Exp바 초기화
+	PlayerHUD->SyncExpBar(PlayerInfo.CurrentExp, PlayerInfo.NextExp);
 	// 스킬 이미지
 	PlayerHUD->SetHUDSkillImages(ActingInfos);
 	
@@ -119,6 +126,32 @@ void APlayableCharacter::Tick(float DeltaTime)
 
 	TickUpdateStatus();
 	UpdateDungeonLocation();
+}
+
+void APlayableCharacter::GetExp(int32 _Exp)
+{
+	PlayerInfo.CurrentExp += _Exp;
+	PlayerHUD->SyncExpBar(PlayerInfo.CurrentExp, PlayerInfo.NextExp);
+
+	LOGTEXT_LOG(TEXT("경험치 획득:%d"), _Exp);
+	
+	// 레벨업?
+	if(PlayerInfo.CurrentExp >= PlayerInfo.NextExp)
+		LevelUp();
+}
+
+void APlayableCharacter::LevelUp()
+{
+	LOGTEXT_ERROR(TEXT("레벨 업!"));
+	FActorSpawnParameters _SpawnParams;
+	_SpawnParams.OverrideLevel = GetLevel();
+	_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	GetWorld()->SpawnActor<AActor>(LevelUpAClass, GetActorLocation(), FRotator::ZeroRotator, _SpawnParams);
+	
+	PlayerInfo.Level++;
+	SetPlayerStat(PlayerInfo.Level);
+
+	PlayerHUD->SyncExpBar(PlayerInfo.CurrentExp, PlayerInfo.NextExp);
 }
 
 void APlayableCharacter::SetCurrentState(EPlayerState NextState)
@@ -626,7 +659,24 @@ void APlayableCharacter::SetPlayerStat(int16 Level)
 
 	const FClassStat* _FoundStat = _StatTable->FindRow<FClassStat>(FName(_ClassName + FString::FromInt(Level)), TEXT(""));
 
-	LOGTEXT_ERROR(TEXT("%s"), *_StatTable->GetName());
-	LOGTEXT_WARN(TEXT("%s"), *FName(*_ClassName + FString::FromInt(Level)).ToString());
-	LOGTEXT_LOG(TEXT("%d"), _FoundStat->Hp);
+	// 캐릭터 스탯 할당
+	PlayerInfo.MaxHp = _FoundStat->Hp;
+	PlayerInfo.CurrentHp = _FoundStat->Hp;
+	PlayerInfo.MaxMp = _FoundStat->Mp;
+	PlayerInfo.CurrentMp = _FoundStat->Mp;
+	PlayerInfo.NextExp = _FoundStat->NextExp;
+	
+	PlayerInfo.CurrentExp = 0;
+	PlayerInfo.Level = Level;
+	
+	// 스킬 스탯 할당
+	ActingInfos.BasicAttackPower = _FoundStat->BasicAttackDamage;
+	ActingInfos.Skill1AttackPower = _FoundStat->Skill1Damage;
+	ActingInfos.Skill2AttackPower = _FoundStat->Skill2Damage;
+	ActingInfos.Skill3AttackPower = _FoundStat->Skill3Damage;
+
+	// 플레이어 HUD 정보 업데이트
+	FString _LevelText = TEXT("Level") + FString::FromInt(Level);
+	PlayerHUD->LevelText->SetText(FText::FromString(_LevelText));
+	PlayerHUD->ClassText->SetText(FText::FromString(_ClassName));
 }

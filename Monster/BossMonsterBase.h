@@ -13,5 +13,8 @@ UCLASS()
 class PORTFOLIO_API ABossMonsterBase : public AMonsterGeneralCharacter
 {
 	GENERATED_BODY()
+
+public:
+	ABossMonsterBase();
 	
 };
