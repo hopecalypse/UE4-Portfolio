@@ -6,6 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "MonsterAnimInstance.generated.h"
 
+enum class EMonsterAttackType : uint8;
 enum class EMonsterState : uint8;
 class AMonsterGeneralCharacter;
 /**
@@ -29,6 +30,8 @@ private:
 	// State, ActingType 가져오기
 	UFUNCTION(BlueprintCallable)
 	EMonsterState GetMonsterState() const;
+	UFUNCTION(BlueprintCallable)
+	EMonsterAttackType GetMonsterAttackType() const;
 
 	////////////////////////////////////////////////////////
 	// 애님인스턴스 Notifty 함수
@@ -40,4 +43,8 @@ private:
 	void AnimNotify_EndHitReact();
 	UFUNCTION()
 	void AnimNotify_EndDying();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 BossBasicAttackRand;
 };

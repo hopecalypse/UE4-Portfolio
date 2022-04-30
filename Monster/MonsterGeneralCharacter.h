@@ -73,7 +73,7 @@ public:
 	
 
 	// ! 필요 컴포넌트 //
-private:
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	UMonsterAnimInstance* MonsterAnimInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
@@ -88,10 +88,10 @@ public:
 
 	// ! 필요 함수: 애니메이션 //
 public:
-	void AttackTrigger_FromNotify();
-	void EndAttack_FromNotify();
-	void EndHitReact_FromNotify();
-	void EndDying_FromNotify();
+	virtual void AttackTrigger_FromNotify();
+	virtual void EndAttack_FromNotify();
+	virtual void EndHitReact_FromNotify();
+	virtual void EndDying_FromNotify();
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

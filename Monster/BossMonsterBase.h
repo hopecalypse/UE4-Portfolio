@@ -16,5 +16,14 @@ class PORTFOLIO_API ABossMonsterBase : public AMonsterGeneralCharacter
 
 public:
 	ABossMonsterBase();
+
+public:
+	EMonsterAttackType AttackType;
+	bool bIsAttacking;
+
+private:
+	virtual void EndAttack_FromNotify() override;
+
+	
 	
 };

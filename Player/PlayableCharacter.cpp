@@ -61,7 +61,7 @@ APlayableCharacter::APlayableCharacter()
 	Camera->SetupAttachment(SpringArm);
 	SpringArm->TargetArmLength = 400.f;
 	SpringArm->TargetOffset = FVector(0.f, 0.f, 150.f);
-	SpringArm->SetRelativeRotation(FRotator(-30.f, 0.f, 0.f));
+	SpringArm->SetRelativeRotation(FRotator(-20.f, 0.f, 0.f));
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerCharacter"));
@@ -125,7 +125,7 @@ void APlayableCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	TickUpdateStatus();
-	UpdateDungeonLocation();
+	//UpdateDungeonLocation();
 }
 
 void APlayableCharacter::GetExp(int32 _Exp)

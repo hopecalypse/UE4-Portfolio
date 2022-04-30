@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "DungeonDataAsset.generated.h"
 
+class ABossMonsterBase;
 class AMonsterGeneralCharacter;
 /**
  * 
@@ -34,6 +35,8 @@ public:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<TSubclassOf<AMonsterGeneralCharacter>> RoomMonsters;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ABossMonsterBase> BossMonster;
 
 	// Prop들
 public:

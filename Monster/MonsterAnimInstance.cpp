@@ -3,6 +3,7 @@
 
 #include "MonsterAnimInstance.h"
 
+#include "BossMonsterBase.h"
 #include "PortFolio.h"
 #include "Core/CustomEnums.h"
 #include "Monster/MonsterGeneralCharacter.h"
@@ -36,6 +37,16 @@ EMonsterState UMonsterAnimInstance::GetMonsterState() const
 		return EMonsterState::E_Idle;
 	
 	return MonsterCharacter->GetMonsterState();
+}
+
+EMonsterAttackType UMonsterAnimInstance::GetMonsterAttackType() const
+{
+	if(MonsterCharacter == nullptr)
+		return EMonsterAttackType::E_BasicAttack;
+	ABossMonsterBase* _Boss = Cast<ABossMonsterBase>(MonsterCharacter);
+	if(_Boss == nullptr)
+		return EMonsterAttackType::E_BasicAttack;
+	return _Boss->AttackType;
 }
 
 void UMonsterAnimInstance::AnimNotify_TriggerAttack()

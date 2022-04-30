@@ -10,11 +10,15 @@
 #include "PaperSprite.h"
 #include "PaperSpriteComponent.h"
 #include "PortFolio.h"
+#include "RoomCollider.h"
+#include "Components/BoxComponent.h"
+#include "Components/RectLightComponent.h"
 #include "Core/GameManagerInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Manager/PathManager.h"
+#include "Monster/BossMonsterBase.h"
 #include "Monster/MonsterGeneralCharacter.h"
 #include "Player/PlayableCharacter.h"
 #include "UI/PlayerHUD.h"
@@ -255,7 +259,7 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		int _Y = _TreeNode->Rect.Y + FMath::RandRange(0, _TreeNode->Rect.Height - _Height);
 
 		// Room 오브젝트 생성하기
-		UDungeonRoom* _Room = NewObject<UDungeonRoom>(this);
+		UDungeonRoom* _Room = NewObject<UDungeonRoom>(GetWorld());
 		
 		// 해당되는 Cell들 방으로 변환
 		TArray<UDungeonCell*> _RoomCells = GetCellsInside(FRect(_X, _Y, _Width, _Height));
@@ -272,6 +276,32 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		FRect* _Rect = new FRect(_X, _Y, _Width, _Height);
 		_Room->Rect = _Rect;
 		_Room->CenterCell = CellMap.FindRef(FVector2D(_X + FMath::RoundToInt(_Width / 2), _Y + FMath::RoundToInt(_Height / 2)));
+
+		// Room 콜라이더 생성
+		float _XStart = _X * 600.f - 300.f;
+		float _XEnd = (_X + _Width) * 600.f - 300.f;
+		float _YStart = _Y * 600.f - 300.f;
+		float _YEnd = (_Y + _Height) * 600.f - 300.f;
+		float _XCenter = (_XStart + _XEnd) / 2.f;
+		float _YCenter = (_YStart + _YEnd) / 2.f;
+		FActorSpawnParameters _SpawnParams;
+		_SpawnParams.OverrideLevel = GetWorld()->GetCurrentLevel();
+		_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ARoomCollider* _Collider = GetWorld()->SpawnActor<ARoomCollider>(ARoomCollider::StaticClass(), FVector(_YCenter, _XCenter, 100.f), FRotator::ZeroRotator, _SpawnParams);
+		_Collider->ColliderBox->SetBoxExtent(FVector(_Height * 300.f, _Width * 300.f, 200.f));
+		_Collider->Room = _Room;
+
+		// 디버그용
+		// UKismetSystemLibrary::DrawDebugPoint(this, _Collider->GetActorLocation(), 10.f, FLinearColor::Yellow, 100.f);
+		// UKismetSystemLibrary::DrawDebugBox(this, _Collider->GetActorLocation(), _Collider->ColliderBox->GetScaledBoxExtent(), FLinearColor::Red, FRotator::ZeroRotator, 100.f, 40.f);
+
+		// Rect Light 생성
+		AActor* _RectLight = GetOuter()->GetWorld()->SpawnActor<AActor>(LevelDataAsset->RoomRectLight, _Collider->GetActorLocation() + FVector(0.f, 0.f, 600.f), FRotator::ZeroRotator, _SpawnParams);
+		URectLightComponent* _LightComp = _RectLight->FindComponentByClass<URectLightComponent>();
+		
+		_LightComp->SetSourceWidth(_Width * 600.f);
+		_LightComp->SetSourceHeight(_Height * 600.f);
+		
 
 		RoomList.Add(_Room);
 		LOGTEXT_LOG(TEXT("Room 생성됨: (Cell개수:%d)"), _Room->Cells.Num());
@@ -514,6 +544,18 @@ void UDungeonManager::GenerateMonster()
 			}
 		}
 	}
+
+	// 보스방 보스몬스터 생성
+	FActorSpawnParameters _SpawnParams;
+	_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ABossMonsterBase* _Boss = GetWorld()->SpawnActor<ABossMonsterBase>(LevelDataAsset->BossMonster, BossRoom->CenterCell->Location + FVector(0.f, 0.f, 200.f), FRotator::ZeroRotator, _SpawnParams);
+	BossRoom->Monsters.Add(_Boss);
+
+	// 문쪽 쳐다보게
+	FRotator _Rotation = UKismetMathLibrary::FindLookAtRotation(_Boss->GetActorLocation(), BossRoom->DoorCell->Location);
+	_Rotation.Pitch = 0.f;
+	_Rotation.Roll = 0.f;
+	_Boss->SetActorRotation(_Rotation);
 }
 
 void UDungeonManager::UpdateCells()
@@ -596,7 +638,7 @@ void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
 UDungeonCell* UDungeonManager::FindClosestCell(FVector _Location)
 {
 	_Location.Z = 0.f;
-	UDungeonCell* _Closest = nullptr;
+	UDungeonCell* _Closest = CellMap[FVector2D(0, 0)];
 	float _Distance = 10000000000.f;
 	for(int i = 0; i < YSize; i++)
 	{

@@ -24,22 +24,38 @@ void UDungeonRoom::PlayerEnter(APlayableCharacter* _Player)
 	}
 	if(this->bPlayerStart)
 		return;
-	if(this->bPlayerEntered)
+	// if(this->bPlayerEntered)
+	// 	return;
+
+	LOGTEXT_ERROR(TEXT("플레이어 몬스터 방(%s) 처음 입장함"), *GetName());
+	//bPlayerEntered = true;
+	if(GetName() == TEXT("None"))
 		return;
+
 	if(this->Monsters.Num() == 0)
 		return;
 
-	LOGTEXT_ERROR(TEXT("플레이어 몬스터 방(%s) 처음 입장함"), *GetName());
-	bPlayerEntered = true;
-	
-	// 플레이어 입장-> 소속 몬스터 BT값 Trace로 설정하기
-	for(int i = 0; i < Monsters.Num(); i++)
+	if(!bBossRoom)
 	{
-		AMonsterAIController* _MonsterAIController = Cast<AMonsterAIController>(Monsters[i]->GetController());
+		// 플레이어 입장-> 소속 몬스터 BT값 Trace로 설정하기
+		for(int i = 0; i < Monsters.Num(); i++)
+		{
+			if(Monsters[i] == nullptr)
+				continue;
+			AMonsterAIController* _MonsterAIController = Cast<AMonsterAIController>(Monsters[i]->GetController());
+			if(_MonsterAIController != nullptr)
+			{
+				_MonsterAIController->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), _Player);
+				_MonsterAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bTracingPlayer"), true);
+			}
+		}
+	}
+	else
+	{
+		AMonsterAIController* _MonsterAIController = Cast<AMonsterAIController>(Monsters[0]->GetController());
 		if(_MonsterAIController != nullptr)
 		{
 			_MonsterAIController->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), _Player);
-			_MonsterAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bTracingPlayer"), true);
 		}
 	}
 }
@@ -52,16 +68,16 @@ void UDungeonRoom::GenerateLevel()
 	_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
 
 	// Ceiling Lamp 메시 액터
-	TSubclassOf<AActor> _CeilingLightClass = UDungeonManager::Instance()->GetLevelData()->RoomCeilingLight;
-	AActor* _CeilingLight = GetOuter()->GetWorld()->SpawnActor<AActor>(_CeilingLightClass, CenterCell->Location + FVector(0.f, 0.f, 500.f), FRotator::ZeroRotator, _SpawnParams);
-	CenterCell->PropActors.Add(TEXT("CeilingLight"), _CeilingLight);
+	// TSubclassOf<AActor> _CeilingLightClass = UDungeonManager::Instance()->GetLevelData()->RoomCeilingLight;
+	// AActor* _CeilingLight = GetOuter()->GetWorld()->SpawnActor<AActor>(_CeilingLightClass, CenterCell->Location + FVector(0.f, 0.f, 500.f), FRotator::ZeroRotator, _SpawnParams);
+	// CenterCell->PropActors.Add(TEXT("CeilingLight"), _CeilingLight);
 
 	// Ceiling Rect 라이트
-	AActor* _RectLight = GetOuter()->GetWorld()->SpawnActor<AActor>(UDungeonManager::Instance()->GetLevelData()->RoomRectLight, CenterCell->Location + FVector(0.f, 0.f, 600.f), FRotator::ZeroRotator, _SpawnParams);
-	URectLightComponent* _LightComp = _RectLight->FindComponentByClass<URectLightComponent>();
-	
-	float _Width = Rect->Width * 600.f;
-	float _Height = Rect->Height * 600.f;
-	_LightComp->SetSourceWidth(_Width);
-	_LightComp->SetSourceHeight(_Height);
+	// AActor* _RectLight = GetOuter()->GetWorld()->SpawnActor<AActor>(UDungeonManager::Instance()->GetLevelData()->RoomRectLight, CenterCell->Location + FVector(0.f, 0.f, 600.f), FRotator::ZeroRotator, _SpawnParams);
+	// URectLightComponent* _LightComp = _RectLight->FindComponentByClass<URectLightComponent>();
+	//
+	// float _Width = Rect->Width * 600.f;
+	// float _Height = Rect->Height * 600.f;
+	// _LightComp->SetSourceWidth(_Width);
+	// _LightComp->SetSourceHeight(_Height);
 }

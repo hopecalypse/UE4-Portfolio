@@ -22,6 +22,7 @@ public:
 	TArray<UDungeonCell*> Cells;
 	FRect* Rect;
 	UDungeonCell* CenterCell;
+	UDungeonCell* DoorCell;
 	TArray<AMonsterGeneralCharacter*> Monsters;
 
 public:

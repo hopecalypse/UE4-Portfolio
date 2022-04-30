@@ -73,5 +73,4 @@ enum class EMonsterAttackType : uint8
 	E_Pattern1,
 	E_Pattern2,
 	E_Pattern3,
-	
 };
