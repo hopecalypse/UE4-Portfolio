@@ -50,7 +50,7 @@ void ARoomCollider::OnEndOverlapPlayer(UPrimitiveComponent* OverlappedComponent,
 	APlayableCharacter* _Player = Cast<APlayableCharacter>(OtherActor);
 	if(_Player != nullptr)
 	{
-		LOGTEXT_ERROR(TEXT("플레이어 룸 나감"));
+		LOGTEXT_ERROR(TEXT("플레이어 룸 나감(%s)"), *Room->GetName());
 		if(Room != nullptr)
 		{
 			if(Room->GetName() == TEXT("None"))

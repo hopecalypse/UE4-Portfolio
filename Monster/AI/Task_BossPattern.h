@@ -24,7 +24,7 @@ public:
 private:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-	bool TickMoveTowward(float _ArrDistance, FVector _Target, float _DeltaTime);
+	bool TickMoveTowward(float _ArrDistance, FVector _Target, float _DeltaTime, float _MoveMulti = 1.f);
 	void TickRotateTo(float _DeltaTime, FVector _Target);
 
 	AMonsterAIController* MonsterAIController;
@@ -33,6 +33,10 @@ private:
 	UMonsterAnimInstance* BossAnimInstance;
 	APlayableCharacter* PlayerCharacter;
 	int32 Pattern;
-	int32 BasicAtkCount;
+	int32 ExcutedCount;
+	bool bPatternStarted;
+	bool bMisc;
+	int32 PatternPhase;
+	float AccTime;
 	
 };

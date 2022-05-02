@@ -245,8 +245,8 @@ void UDungeonCell::AddProp(TSubclassOf<AActor> _PropClass, FString _Name, bool _
 	}
 
 	// Pillar -> 가운데 PathNode Obstacle로 만들기
-	if(_Name == TEXT("Pillar"))
-		PathNodes.FindRef(FVector2D(2, 2))->bObstacle = true;
+	// if(_Name == TEXT("Pillar"))
+	// 	PathNodes.FindRef(FVector2D(2, 2))->bObstacle = true;
 }
 
 

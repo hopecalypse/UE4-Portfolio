@@ -299,12 +299,12 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		AActor* _RectLight = GetOuter()->GetWorld()->SpawnActor<AActor>(LevelDataAsset->RoomRectLight, _Collider->GetActorLocation() + FVector(0.f, 0.f, 600.f), FRotator::ZeroRotator, _SpawnParams);
 		URectLightComponent* _LightComp = _RectLight->FindComponentByClass<URectLightComponent>();
 		
-		_LightComp->SetSourceWidth(_Width * 600.f);
-		_LightComp->SetSourceHeight(_Height * 600.f);
+		_LightComp->SetSourceWidth(_Width * 600.f - 30.f);
+		_LightComp->SetSourceHeight(_Height * 600.f - 300.f);
 		
 
 		RoomList.Add(_Room);
-		LOGTEXT_LOG(TEXT("Room 생성됨: (Cell개수:%d)"), _Room->Cells.Num());
+		LOGTEXT_LOG(TEXT("Room(%s) 생성됨: (Cell개수:%d)"), *_Room->GetName(), _Room->Cells.Num());
 		//UKismetSystemLibrary::DrawDebugCircle(this, _Room->CenterCell->Location, 100.f, 10.f, FLinearColor::Green, 100.f, 50.f);
 	}
 
@@ -550,6 +550,7 @@ void UDungeonManager::GenerateMonster()
 	_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	ABossMonsterBase* _Boss = GetWorld()->SpawnActor<ABossMonsterBase>(LevelDataAsset->BossMonster, BossRoom->CenterCell->Location + FVector(0.f, 0.f, 200.f), FRotator::ZeroRotator, _SpawnParams);
 	BossRoom->Monsters.Add(_Boss);
+	_Boss->SpawnLocation = _Boss->GetActorLocation();
 
 	// 문쪽 쳐다보게
 	FRotator _Rotation = UKismetMathLibrary::FindLookAtRotation(_Boss->GetActorLocation(), BossRoom->DoorCell->Location);

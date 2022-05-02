@@ -6,6 +6,8 @@
 #include "Monster/MonsterGeneralCharacter.h"
 #include "BossMonsterBase.generated.h"
 
+class ABossPattern3;
+class ABossPattern1;
 /**
  * 
  */
@@ -19,10 +21,28 @@ public:
 
 public:
 	EMonsterAttackType AttackType;
+	void SetIsAttacking(bool _Value);
+	bool GetIsAttacking() { return bIsAttacking; }
+
+	FVector SpawnLocation;
+private:
 	bool bIsAttacking;
+
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ABossPattern1> Pattern1Actor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* Pattern2Montage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* Pattern3Montage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ABossPattern3> Pattern3Actor;
 
 private:
 	virtual void EndAttack_FromNotify() override;
+
+	virtual void AttackTrigger_FromNotify() override;
 
 	
 	
