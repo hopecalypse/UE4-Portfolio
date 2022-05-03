@@ -55,13 +55,19 @@ void ARoomCollider::OnEndOverlapPlayer(UPrimitiveComponent* OverlappedComponent,
 		{
 			if(Room->GetName() == TEXT("None"))
 				return;
+			if(Room->bBossRoom || Room->bPlayerStart)
+				return;
 			if(Room->Monsters.Num() == 0)
 				return;
 			for(int i = 0; i < Room->Monsters.Num(); i++)
 			{
-				AMonsterAIController* _AIC = Cast<AMonsterAIController>(Room->Monsters[i]->GetController());
-				_AIC->GetBlackboardComponent()->SetValueAsBool(TEXT("bTracingPlayer"), false);
-				//_AIC->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), nullptr);
+				if(Room->Monsters[i] != nullptr)
+				{
+					AMonsterAIController* _AIC = Cast<AMonsterAIController>(Room->Monsters[i]->GetController());
+					_AIC->GetBlackboardComponent()->SetValueAsBool(TEXT("bTracingPlayer"), false);
+					//_AIC->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), nullptr);
+					Room->Monsters[i]->SetHPBarVisible(false);
+				}
 			}
 		}
 	}

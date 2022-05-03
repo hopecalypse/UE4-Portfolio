@@ -41,8 +41,12 @@ public:
 
 private:
 	virtual void EndAttack_FromNotify() override;
-
 	virtual void AttackTrigger_FromNotify() override;
+
+private:
+	virtual void TrySetHitReaction() override;
+	virtual void ChangeMonsterHp(float _HpChangeValue) override;
+	virtual void EndDying_FromNotify() override;
 
 	
 	

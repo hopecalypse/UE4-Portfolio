@@ -38,6 +38,10 @@ UDungeonManager::UDungeonManager()
 	static ConstructorHelpers::FClassFinder<UUserWidget> _PlayerHUDClass(TEXT("WidgetBlueprint'/Game/_Blueprints/UI/WBP_PlayerHUD.WBP_PlayerHUD_C'"));
 	if(_PlayerHUDClass.Succeeded())
 		PlayerHUDBP = _PlayerHUDClass.Class;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> _ClearScreenClass(TEXT("WidgetBlueprint'/Game/_Blueprints/UI/WBP_ClearScreen.WBP_ClearScreen_C'"));
+	if(_ClearScreenClass.Succeeded())
+		ClearScreenClass = _ClearScreenClass.Class;
 }
 
 void UDungeonManager::GenerateInst(UObject* _GameInstance)
@@ -499,7 +503,11 @@ void UDungeonManager::GenerateProps()
 					if((x - _XStart) % _XCount == 1)
 					{
 						UDungeonCell* _Cell = CellMap.FindRef(FVector2D(x, y));
-						_Cell->AddProp(LevelDataAsset->Pillar, TEXT("Pillar"), false);
+						if(_Cell->Room != nullptr)
+						{
+							if(_Cell->Room->CenterCell != _Cell)
+								_Cell->AddProp(LevelDataAsset->Pillar, TEXT("Pillar"), false);
+						}
 					}
 				}
 			}
@@ -573,6 +581,7 @@ void UDungeonManager::StartGame()
 	PlayerHUD = Cast<UPlayerHUD>(CreateWidget(GetOuter()->GetWorld(), PlayerHUDBP));
 	PlayerHUD->SetVisibility(ESlateVisibility::Hidden);
 	PlayerHUD->AddToViewport();
+	PlayerHUD->SetVisibility(ESlateVisibility::Hidden);
 	
 	// 플레이어 스폰하기
 	ObserverPawn = UGameplayStatics::GetPlayerPawn(GetOuter(), 0);
@@ -613,6 +622,7 @@ void UDungeonManager::OnEndBlendToPlayer()
 
 	// Directional Light
 	DirectionalLight->Destroy();
+	PlayerHUD->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
@@ -660,6 +670,18 @@ UDungeonCell* UDungeonManager::FindClosestCell(FVector _Location)
 	}
 
 	return _Closest;
+}
+
+void UDungeonManager::ClearBoss()
+{
+	LOGTEXT_LOG(TEXT("보스 클리어"));
+
+	FInputModeUIOnly _UIMode;
+	PlayerController->SetInputMode(_UIMode);
+	PlayerController->SetShowMouseCursor(true);
+
+	UUserWidget* _ClearScreenWidget = CreateWidget(GetWorld(), ClearScreenClass);
+	_ClearScreenWidget->AddToViewport();
 }
 
 

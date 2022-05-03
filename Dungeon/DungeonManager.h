@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "DungeonManager.generated.h"
 
+class UClearScreen;
 class APlayableCharacter;
 class UPlayerHUD;
 class UDungeonRoom;
@@ -152,16 +153,13 @@ public:
 	// 7. 몬스터 생성
 public:
 	void GenerateMonster();
-
 	
-
-	// 999. 플레이어 생성하기, 게임 시작
+	// 8. 플레이어 생성하기, 게임 시작
 public:
 	void StartGame();
 	UFUNCTION()
 	void OnEndBlendToPlayer();
-
-
+	
 	// 인게임 관련
 public:
 	APlayableCharacter* Player;
@@ -169,5 +167,10 @@ public:
 	void UpdatePlayerLocation(APlayableCharacter* _Player);
 	UDungeonCell* FindClosestCell(FVector _Location);
 	UDungeonRoom* PlayerRoom;
+
+	// 게임 클리어시
+public:
+	TSubclassOf<UUserWidget> ClearScreenClass;
+	void ClearBoss();
 	
 };

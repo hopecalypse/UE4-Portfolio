@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerHUD.generated.h"
 
+class UCanvasPanel;
 struct FClassActingInfo;
 class UImage;
 class UTextBlock;
@@ -55,6 +56,10 @@ private:
 	UProgressBar* CoolDown_Skill2;
 	UImage* Image_Skill3;
 	UProgressBar* CoolDown_Skill3;
+
+public:
+	UCanvasPanel* Locked_Skill2;
+	UCanvasPanel* Locked_Skill3;
 
 	bool bCooling_BasicAttack;
 	bool bCooling_Skill1;

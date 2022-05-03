@@ -8,10 +8,13 @@
 #include "Combat/Boss/BossPattern1.h"
 #include "Combat/Boss/BossPattern3.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ProgressBar.h"
 #include "Components/WidgetComponent.h"
+#include "Dungeon/DungeonManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/PlayableCharacter.h"
+#include "UI/PlayerHUD.h"
 
 ABossMonsterBase::ABossMonsterBase()
 {
@@ -21,7 +24,8 @@ ABossMonsterBase::ABossMonsterBase()
 	GetMesh()->SetRelativeScale3D(FVector(1.4f, 1.4f, 1.4f));
 
 	MinimapSprite->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
-	HpbarWidgetComponent->SetDrawSize(FVector2D(0.f, 0.f));
+	//HpbarWidgetComponent->SetDrawSize(FVector2D(0.f, 0.f));
+	
 }
 
 void ABossMonsterBase::SetIsAttacking(bool _Value)
@@ -117,4 +121,45 @@ void ABossMonsterBase::AttackTrigger_FromNotify()
 		
 		GetWorld()->SpawnActor<ABossPattern3>(Pattern3Actor, Player->GetActorLocation(), FRotator::ZeroRotator, _SpawnParams);
 	}
+}
+
+void ABossMonsterBase::TrySetHitReaction()
+{
+	//Super::TrySetHitReaction();
+}
+
+void ABossMonsterBase::ChangeMonsterHp(float _HpChangeValue)
+{
+	//Super::ChangeMonsterHp(_HpChangeValue);
+	bool _bDieFlag = false;
+	// Hp 작용
+	MonsterInfo.CurrentHp -= _HpChangeValue;
+	if(MonsterInfo.CurrentHp < 0.f)
+	{
+		MonsterInfo.CurrentHp = 0.f;
+		_bDieFlag = true;
+	}
+
+	// HUD 업데이트(플레이어HUD)
+	UProgressBar* _HpBar = Cast<UProgressBar>(UDungeonManager::Instance()->PlayerHUD->GetWidgetFromName(TEXT("BossHPBar")));
+	float _Percent = MonsterInfo.CurrentHp / MonsterInfo.MaxHp;
+	_HpBar->SetPercent(_Percent);
+
+
+	// 사망 시
+	if(_bDieFlag)
+	{
+		if(MonsterState == EMonsterState::E_Dying)
+			return;
+		SetMonsterState(EMonsterState::E_Dying);
+		bNeverChangableState = true;
+	}
+}
+
+void ABossMonsterBase::EndDying_FromNotify()
+{
+	//Super::EndDying_FromNotify();
+
+	// 클리어 스크린
+	UDungeonManager::Instance()->ClearBoss();
 }

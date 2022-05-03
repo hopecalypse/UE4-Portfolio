@@ -65,6 +65,16 @@ void UPlayerAnimInstance::PlayActingAnimation(EActingType NextActingType)
 // ///////////////////////////////////////////////////////////////////////////
 // 자동 호출 노티파이 함수
 #pragma region 노티파이 모음
+void UPlayerAnimInstance::AnimNotify_CanAttackCombo()
+{
+	if(PlayerCharacter != nullptr)
+	{
+		PlayerCharacter->bCanBasicAttackCombo = true;
+		PlayerCharacter->bDontEndBasicAttack = false;
+	}
+		
+}
+
 void UPlayerAnimInstance::AnimNotify_EndJump()
 {
 	if(PlayerCharacter != nullptr)
@@ -73,10 +83,12 @@ void UPlayerAnimInstance::AnimNotify_EndJump()
 
 void UPlayerAnimInstance::AnimNotify_EndAttackBasic()
 {
+	//BasicAttackNum++;
 	if(PlayerCharacter != nullptr)
+	{
 		PlayerCharacter->EndActingFromNotify();
-	BasicAttackNum++;
-	if(BasicAttackNum == 3) BasicAttackNum = 0;
+		PlayerCharacter->bCanBasicAttackCombo = false;
+	}
 }
 
 void UPlayerAnimInstance::AnimNotify_EndDodge()

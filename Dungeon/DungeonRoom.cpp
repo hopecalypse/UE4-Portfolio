@@ -13,6 +13,7 @@
 #include "Monster/MonsterGeneralCharacter.h"
 #include "Monster/AI/MonsterAIController.h"
 #include "Player/PlayableCharacter.h"
+#include "UI/PlayerHUD.h"
 
 void UDungeonRoom::PlayerEnter(APlayableCharacter* _Player)
 {
@@ -48,6 +49,7 @@ void UDungeonRoom::PlayerEnter(APlayableCharacter* _Player)
 				_MonsterAIController->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), _Player);
 				_MonsterAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("bTracingPlayer"), true);
 			}
+			Monsters[i]->SetHPBarVisible(true);
 		}
 	}
 	else
@@ -56,7 +58,9 @@ void UDungeonRoom::PlayerEnter(APlayableCharacter* _Player)
 		if(_MonsterAIController != nullptr)
 		{
 			_MonsterAIController->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), _Player);
+			UDungeonManager::Instance()->PlayerHUD->GetWidgetFromName(TEXT("BossPanel"))->SetVisibility(ESlateVisibility::Visible);
 		}
+		
 	}
 }
 

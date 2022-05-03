@@ -67,6 +67,9 @@ public:
 	// 노티파이 함수
 public:
 	UFUNCTION()
+	void AnimNotify_CanAttackCombo();
+	
+	UFUNCTION()
 	void AnimNotify_EndJump();
 	UFUNCTION()
 	void AnimNotify_EndAttackBasic();

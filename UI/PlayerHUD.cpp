@@ -4,6 +4,7 @@
 #include "UI/PlayerHUD.h"
 
 #include "PortFolio.h"
+#include "Components/CanvasPanel.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
@@ -33,6 +34,9 @@ void UPlayerHUD::NativeConstruct()
 	CoolDown_Skill1 = Cast<UProgressBar>(GetWidgetFromName((TEXT("CoolDown_Skill1"))));
 	CoolDown_Skill2 = Cast<UProgressBar>(GetWidgetFromName((TEXT("CoolDown_Skill2"))));
 	CoolDown_Skill3 = Cast<UProgressBar>(GetWidgetFromName((TEXT("CoolDown_Skill3"))));
+
+	Locked_Skill2 = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("Locked_Skill2")));
+	Locked_Skill3 = Cast<UCanvasPanel>(GetWidgetFromName(TEXT("Locked_Skill3")));
 }
 
 void UPlayerHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

@@ -11,6 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Combat/ProjectileGeneral.h"
+#include "Components/CanvasPanel.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/TextBlock.h"
@@ -313,10 +314,22 @@ void APlayableCharacter::SwitchCharacter()
 void APlayableCharacter::GetActionInput_AttackBasic()
 {
 	// 확인: State로 가능한지 판별(Idle, Move일때만) or Attack Combo 가능할 때
-	if(GetCurrentState() != EPlayerState::E_Idle && GetCurrentState() != EPlayerState::E_Moving)	return;
+	
+	if(GetCurrentState() == EPlayerState::E_Dying || GetCurrentState() == EPlayerState::E_Jumping)	return;
+
+	// 공격중일 때-> 콤보 가능하면 실행
+	if((GetCurrentState() == EPlayerState::E_ActingMoving || GetCurrentState() == EPlayerState::E_ActingStatic) && bCanBasicAttackCombo)
+	{
+		AnimInstance->BasicAttackNum++;
+		if(AnimInstance->BasicAttackNum != 2)
+			bDontEndBasicAttack = true;
+		else
+			bDontEndBasicAttack = false;
+		return;
+	}
 	
 	// 확인: 쿨타임 중인지
-	if(bBasicAttackCooling)		return;
+	//if(bBasicAttackCooling)		return;
 
 	// 실행~
 	// 공격 유형에 따라 이동 가능 여부 판별
@@ -328,7 +341,7 @@ void APlayableCharacter::GetActionInput_AttackBasic()
 	// 애니메이션 재생
 	AnimInstance->PlayActingAnimation(EActingType::E_AttackBasic);
 	// 쿨다운 설정
-	Cooldown_AttackBasic();
+	//Cooldown_AttackBasic();
 }
 
 void APlayableCharacter::GetActionInput_Dodge()
@@ -355,6 +368,10 @@ void APlayableCharacter::GetActionInput_Skill1()
 	if(GetCurrentState() != EPlayerState::E_Idle && GetCurrentState() != EPlayerState::E_Moving)	return;
 	// 확인: 쿨타임 중인지
 	if(bSkill1Cooling)		return;
+	// 확인: 마나
+	if(PlayerInfo.CurrentMp < ActingInfos.Skill1MP)
+		return;
+	ChangeMp(ActingInfos.Skill1MP);
 
 	// 실행~
 	// 공격 유형에 따라 이동 가능 여부 판별
@@ -371,10 +388,16 @@ void APlayableCharacter::GetActionInput_Skill1()
 
 void APlayableCharacter::GetActionInput_Skill2()
 {
+	if(ActingInfos.bSKill2Locked)
+		return;
 	// 확인: State로 가능한지 판별(Idle, Move일때만)
 	if(GetCurrentState() != EPlayerState::E_Idle && GetCurrentState() != EPlayerState::E_Moving)	return;
 	// 확인: 쿨타임 중인지
 	if(bSkill2Cooling)	return;
+
+	if(PlayerInfo.CurrentMp < ActingInfos.Skill2MP)
+		return;
+	ChangeMp(ActingInfos.Skill2MP);
 
 	// 실행~
 	// 공격 유형에 따라 이동 가능 여부 판별
@@ -391,11 +414,16 @@ void APlayableCharacter::GetActionInput_Skill2()
 
 void APlayableCharacter::GetActionInput_Skill3()
 {
+	if(ActingInfos.bSkill3Locked)
+		return;
 	// 확인: State로 가능한지 판별(Idle, Move일때만)
 	if(GetCurrentState() != EPlayerState::E_Idle && GetCurrentState() != EPlayerState::E_Moving)	return;
 	// 확인: 쿨타임 중인지
 	if(bSkill3Cooling)		return;
 
+	if(PlayerInfo.CurrentMp < ActingInfos.Skill3MP)
+		return;
+	ChangeMp(ActingInfos.Skill3MP);
 	// 실행~
 	// 공격 유형에 따라 이동 가능 여부 판별
 	EPlayerState _ActingState = ActingInfos.Skill3AttackMovable ? EPlayerState::E_ActingMoving : EPlayerState::E_ActingStatic;
@@ -632,9 +660,13 @@ void APlayableCharacter::EndJumpFromNotify()
 void APlayableCharacter::EndActingFromNotify()
 {
 	// 행동(공격, 회피 등) 완료시 Notify(애님인스턴스)에서 호출
+	// 콤보중일 때
+	if(bDontEndBasicAttack)
+		return;
+	
+	bCanBasicAttackCombo = false;
+	AnimInstance->BasicAttackNum = 0;
 	SetCurrentState(EPlayerState::E_Idle);
-	if(GetCurrentActingType() != EActingType::E_AttackBasic)
-		AnimInstance->BasicAttackNum = 0;
 	SetCurrentActingType(EActingType::E_None);
 	// 무적 상태 종료
 	if(GetIsInvincible())	SetIsInvincible(false);
@@ -657,13 +689,15 @@ void APlayableCharacter::SetPlayerStat(int16 Level)
 	else
 		_ClassName = TEXT("Gunner");
 
+	LOGTEXT_LOG(TEXT("%s, %s"), *_ClassName, *_StatTable->GetName());
+	
 	const FClassStat* _FoundStat = _StatTable->FindRow<FClassStat>(FName(_ClassName + FString::FromInt(Level)), TEXT(""));
 
 	// 캐릭터 스탯 할당
 	PlayerInfo.MaxHp = _FoundStat->Hp;
-	PlayerInfo.CurrentHp = _FoundStat->Hp;
+	PlayerInfo.CurrentHp = PlayerInfo.MaxHp;
 	PlayerInfo.MaxMp = _FoundStat->Mp;
-	PlayerInfo.CurrentMp = _FoundStat->Mp;
+	PlayerInfo.CurrentMp = PlayerInfo.MaxMp;
 	PlayerInfo.NextExp = _FoundStat->NextExp;
 	
 	PlayerInfo.CurrentExp = 0;
@@ -679,4 +713,28 @@ void APlayableCharacter::SetPlayerStat(int16 Level)
 	FString _LevelText = TEXT("Level") + FString::FromInt(Level);
 	PlayerHUD->LevelText->SetText(FText::FromString(_LevelText));
 	PlayerHUD->ClassText->SetText(FText::FromString(_ClassName));
+	PlayerHUD->SyncHpMpBar(PlayerInfo.CurrentHp, PlayerInfo.MaxHp, PlayerInfo.CurrentMp, PlayerInfo.MaxMp);
+
+	// 스킬 잠금 상태
+	if(Level == 1)
+	{
+		ActingInfos.bSKill2Locked = true;
+		ActingInfos.bSkill3Locked = true;
+		GetPlayerHUD()->Locked_Skill2->SetVisibility(ESlateVisibility::Visible);
+		GetPlayerHUD()->Locked_Skill3->SetVisibility(ESlateVisibility::Visible);
+	}
+	else if(Level == 2)
+	{
+		ActingInfos.bSKill2Locked = false;
+		ActingInfos.bSkill3Locked = true;
+		GetPlayerHUD()->Locked_Skill2->SetVisibility(ESlateVisibility::Hidden);
+		GetPlayerHUD()->Locked_Skill3->SetVisibility(ESlateVisibility::Visible);
+	}
+	else if(Level == 3)
+	{
+		ActingInfos.bSKill2Locked = false;
+		ActingInfos.bSkill3Locked = false;
+		GetPlayerHUD()->Locked_Skill2->SetVisibility(ESlateVisibility::Hidden);
+		GetPlayerHUD()->Locked_Skill3->SetVisibility(ESlateVisibility::Hidden);
+	}
 }

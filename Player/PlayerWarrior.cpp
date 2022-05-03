@@ -94,6 +94,8 @@ void APlayerWarrior::ActionTrigger_Skill1()
 
 void APlayerWarrior::GetActionInput_Skill2()
 {
+	if(ActingInfos.bSKill2Locked)
+		return;
 	Super::GetActionInput_Skill2();
 
 	// 회전 불가
@@ -129,6 +131,8 @@ void APlayerWarrior::TickRotatingSkill2(float _DeltaTime)
 
 void APlayerWarrior::GetActionInput_Skill3()
 {
+	if(ActingInfos.bSkill3Locked)
+		return;
 	if(GetCurrentState() != EPlayerState::E_Idle && GetCurrentState() != EPlayerState::E_Moving)
 		return;
 	if(bSkill3Cooling)

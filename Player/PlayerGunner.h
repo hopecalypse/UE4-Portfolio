@@ -43,6 +43,7 @@ private:
 
 	// 기본 공격 함수 오버라이드
 private:
+	virtual void GetActionInput_AttackBasic() override;
 	virtual void ActionTrigger_AttackBasic() override;
 	AProjectileGeneral* SpawnProjectileToGun(TSubclassOf<AProjectileGeneral> _ProjectileClass, float _LifeTime, float _AttackDamage);
 
@@ -77,6 +78,9 @@ private:
 	float Skill3LengthTime = 5.f;
 	float Skill3Interval = 0.1f;
 	float Skill3ExecuteAccTime;
+
+private:
+	virtual void EndActingFromNotify() override;
 
 	// 공격 대상 설정 관련
 private:

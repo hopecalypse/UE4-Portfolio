@@ -70,7 +70,7 @@ void ACharacterSelectGameMode::ConfirmSelect_FromButton()
 	Cast<UGameManagerInstance>(GetGameInstance())->SelectPlayerClass(CurrentSelectCharacter->PlayerClass);
 	
 	// 현재 선택중인 클래스: CurrentSelectCharacter->PlayerClass
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("DefaultMap"));
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("Dungeon"));
 
 	// 입력 모드 변경하기
 	FInputModeGameOnly _GameInputMode;

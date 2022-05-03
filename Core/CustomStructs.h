@@ -117,6 +117,8 @@ struct FClassActingInfo
 	bool bSkill1DamageAtProjectile = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	float Skill1ProjectileLifeTime = 4.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	int Skill1MP = 10;
 	
 
 	// 스킬 2
@@ -138,6 +140,10 @@ struct FClassActingInfo
     bool bSkill2DamageAtProjectile = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	float Skill2ProjectileLifeTime = 4.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	bool bSKill2Locked = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	int Skill2MP = 20;
 	
 
 	// 스킬 3
@@ -159,6 +165,10 @@ struct FClassActingInfo
 	bool bSkill3DamageAtProjectile = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	float Skill3ProjectileLifeTime = 4.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	bool bSkill3Locked = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	int Skill3MP = 30;
 
 	// 기타
 	// Casting 관련

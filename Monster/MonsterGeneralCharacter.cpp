@@ -43,6 +43,7 @@ AMonsterGeneralCharacter::AMonsterGeneralCharacter()
 	HpbarWidgetComponent->SetupAttachment(GetMesh());
 	HpbarWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 180.f));
 	HpbarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	HpbarWidgetComponent->SetVisibility(false);
 	MinimapSprite->SetupAttachment(RootComponent);
 
 	MinimapSprite->SetSprite(SpriteAsset);

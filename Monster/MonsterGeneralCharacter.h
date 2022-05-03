@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MonsterAnimInstance.h"
 #include "BehaviorTree/BlackboardData.h"
+#include "Components/WidgetComponent.h"
 #include "Core/CustomStructs.h"
 #include "GameFramework/Character.h"
 #include "MonsterGeneralCharacter.generated.h"
@@ -37,7 +38,7 @@ public:
 
 
 	// ! 필요 변수 //
-private:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	FMonsterInfo MonsterInfo;			// 정보
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
@@ -57,7 +58,7 @@ public:
 	UFUNCTION()
 	void SetMonsterState(EMonsterState _Value);
 	UFUNCTION()
-	void TrySetHitReaction();
+	virtual void TrySetHitReaction();
 	UFUNCTION(BlueprintCallable)
 	bool GetIsInvincible() const { return bIsInvincible; };
 	UFUNCTION(BlueprintCallable)
@@ -67,7 +68,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FMonsterAttackInfo GetMonsterAttackInfo() const { return AttackInfo; };
 	UFUNCTION(BlueprintCallable)
-	void ChangeMonsterHp(float _HpChangeValue);
+	virtual void ChangeMonsterHp(float _HpChangeValue);
 	UFUNCTION(BlueprintCallable)
 	void DieImmediately();
 	
@@ -80,6 +81,8 @@ protected:
 	UWidgetComponent* HpbarWidgetComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	UMonsterHpBar* HpBarWidgetObject;
+public:
+	void SetHPBarVisible(bool _Value) { HpbarWidgetComponent->SetVisibility(_Value); }
 
 public:
 	UFUNCTION()

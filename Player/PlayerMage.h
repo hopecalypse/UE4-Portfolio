@@ -50,6 +50,8 @@ private:
 	void ExecuteSkill3();
 	virtual void MiscTrigger1() override;
 	virtual void MiscTrigger2() override;
+
+	virtual void EndActingFromNotify() override;
 	
 	
 };

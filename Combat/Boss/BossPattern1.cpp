@@ -30,7 +30,7 @@ void ABossPattern1::BeginPlay()
 	Super::BeginPlay();
 
 	RootCollision->OnComponentBeginOverlap.AddDynamic(this, &ABossPattern1::OnOverlapPlayer);
-	SetLifeSpan(5.f);
+	SetLifeSpan(8.f);
 }
 
 void ABossPattern1::Tick(float DeltaTime)

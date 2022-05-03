@@ -86,12 +86,32 @@ void APlayerGunner::Tick(float DeltaSeconds)
 	}
 }
 
+void APlayerGunner::GetActionInput_AttackBasic()
+{
+	//Super::GetActionInput_AttackBasic();
+
+	if(GetCurrentState() == EPlayerState::E_Dying || GetCurrentState() == EPlayerState::E_Jumping)	return;
+	
+	// 확인: 쿨타임 중인지
+	//if(bBasicAttackCooling)		return;
+
+	// 실행~
+	// 공격 유형에 따라 이동 가능 여부 판별
+	EPlayerState _ActingState = ActingInfos.BasicAttackMovable ? EPlayerState::E_ActingMoving : EPlayerState::E_ActingStatic;
+	// 상태State 설정
+	SetCurrentState(_ActingState);
+	// Acting Type 설정
+	SetCurrentActingType(EActingType::E_AttackBasic);
+	// 애니메이션 재생
+	AnimInstance->PlayActingAnimation(EActingType::E_AttackBasic);
+	// 쿨다운 설정
+	//Cooldown_AttackBasic();
+}
+
 void APlayerGunner::ActionTrigger_AttackBasic()
 {
-	
 	// 소켓 위치(GunPoint)에 생성
 	AProjectileGeneral* _GenBasic = SpawnProjectileToGun(ActingInfos.BasicAttackProjectile, ActingInfos.BasicAttackProjectileLifeTime, ActingInfos.BasicAttackPower);
-
 	
 	// 타겟팅 적이 있을 때
 	if(TargetingEnemy != nullptr)
@@ -148,6 +168,8 @@ void APlayerGunner::ActionTrigger_Skill1()
 
 void APlayerGunner::GetActionInput_Skill2()
 {
+	if(ActingInfos.bSKill2Locked)
+		return;
 	// 재정의 목적: 타겟이 있을때만 실행하기 위해
 	
 	// 확인: State로 가능한지 판별(Idle, Move일때만)
@@ -160,6 +182,10 @@ void APlayerGunner::GetActionInput_Skill2()
 		LOGTEXT_LOG(TEXT("Gunner 스킬2: 타겟이 있어야 사용 가능"));
 		return;
 	}
+	// 확인: 마나
+	if(PlayerInfo.CurrentMp < ActingInfos.Skill2MP)
+		return;
+	ChangeMp(ActingInfos.Skill2MP);
 	// 타겟 저장해놓기
 	SavedTargetForMissile = TargetingEnemy; 
 
@@ -214,10 +240,17 @@ void APlayerGunner::SpawnLeftMissiles_Skill2()
 
 void APlayerGunner::GetActionInput_Skill3()
 {
+	if(ActingInfos.bSkill3Locked)
+		return;
 	if(GetCurrentState() != EPlayerState::E_Idle && GetCurrentState() != EPlayerState::E_Moving)
 		return;
 	if(bSkill3Cooling)
 		return;
+
+	// 확인: 마나
+	if(PlayerInfo.CurrentMp < ActingInfos.Skill2MP)
+		return;
+	ChangeMp(ActingInfos.Skill2MP);
 		
 	Super::GetActionInput_Skill3();
 	
@@ -301,6 +334,26 @@ void APlayerGunner::EndSkill3()
 
 	Skill3Laser->Destroy();
 	Skill3Laser = nullptr;
+}
+
+void APlayerGunner::EndActingFromNotify()
+{
+	//Super::EndActingFromNotify();
+
+	// 행동(공격, 회피 등) 완료시 Notify(애님인스턴스)에서 호출
+	// 콤보중일 때
+	bCanBasicAttackCombo = false;
+	if(AnimInstance->BasicAttackNum == 2)
+		AnimInstance->BasicAttackNum = 0;
+	else
+		AnimInstance->BasicAttackNum++;
+	SetCurrentState(EPlayerState::E_Idle);
+	SetCurrentActingType(EActingType::E_None);
+	// 무적 상태 종료
+	if(GetIsInvincible())	SetIsInvincible(false);
+	// Casting 종료, 회전가능
+	if(bCastingIgnoreRot)
+		bCastingIgnoreRot = false;
 }
 
 // 적 박스 등록

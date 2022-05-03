@@ -121,7 +121,8 @@ void AProjectileGeneral::OnProjectileHit(UPrimitiveComponent* HitComponent, AAct
 		
 	// Hit(블록) 시
 	// 충돌 Sweep 체크하기
-	FCollisionQueryParams _CollisionParams(NAME_None);
+	//FCollisionQueryParams _CollisionParams(NAME_None);
+	FCollisionQueryParams _CollisionParams;
 	TArray<AActor*> _ActorsToIgnore;
 	TArray<FHitResult> _HitResults;
 	bool _bHit = UKismetSystemLibrary::SphereTraceMulti(this, GetActorLocation(), GetActorLocation(), 600.f, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5), false, _ActorsToIgnore, EDrawDebugTrace::ForDuration, _HitResults, true);

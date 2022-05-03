@@ -166,6 +166,11 @@ void APlayerMage::GetActionInput_Skill2()
 {
 	Super::GetActionInput_Skill2();
 
+	// 확인: 마나
+	if(PlayerInfo.CurrentMp < ActingInfos.Skill2MP)
+		return;
+	ChangeMp(ActingInfos.Skill2MP);
+
 	// 몽타주 플레이
 	AnimInstance->Montage_Play(Skill2Montage);
 }
@@ -207,17 +212,41 @@ void APlayerMage::ActionTrigger_Skill2()
 void APlayerMage::GetActionInput_AttackBasic()
 {
 	if(!bIsCasting)
-		Super::GetActionInput_AttackBasic();
+	{   
+		if(GetCurrentState() == EPlayerState::E_Dying || GetCurrentState() == EPlayerState::E_Jumping)	return;
+	
+		// 확인: 쿨타임 중인지
+		//if(bBasicAttackCooling)		return;
+
+		// 실행~
+		// 공격 유형에 따라 이동 가능 여부 판별
+		EPlayerState _ActingState = ActingInfos.BasicAttackMovable ? EPlayerState::E_ActingMoving : EPlayerState::E_ActingStatic;
+		// 상태State 설정
+		SetCurrentState(_ActingState);
+		// Acting Type 설정
+		SetCurrentActingType(EActingType::E_AttackBasic);
+		// 애니메이션 재생
+		AnimInstance->PlayActingAnimation(EActingType::E_AttackBasic);
+		// 쿨다운 설정
+		//Cooldown_AttackBasic();
+	}
 	else
 		ExecuteSkill3();
 }
 
 void APlayerMage::GetActionInput_Skill3()
 {
+	if(ActingInfos.bSkill3Locked)
+		return;
 	if(GetCurrentState() != EPlayerState::E_Idle && GetCurrentState() != EPlayerState::E_Moving)
 		return;
 	if(bSkill3Cooling)
 		return;
+
+	// 확인: 마나
+	if(PlayerInfo.CurrentMp < ActingInfos.Skill3MP)
+		return;
+	ChangeMp(ActingInfos.Skill3MP);
 	
 	Super::GetActionInput_Skill3();
 
@@ -327,4 +356,22 @@ void APlayerMage::MiscTrigger2()
 {
 	// 캐스팅 Actor 제거
 	CastingDecalActor->Destroy();
+}
+
+void APlayerMage::EndActingFromNotify()
+{
+	// 행동(공격, 회피 등) 완료시 Notify(애님인스턴스)에서 호출
+	// 콤보중일 때
+	bCanBasicAttackCombo = false;
+	if(AnimInstance->BasicAttackNum == 2)
+		AnimInstance->BasicAttackNum = 0;
+	else
+		AnimInstance->BasicAttackNum++;
+	SetCurrentState(EPlayerState::E_Idle);
+	SetCurrentActingType(EActingType::E_None);
+	// 무적 상태 종료
+	if(GetIsInvincible())	SetIsInvincible(false);
+	// Casting 종료, 회전가능
+	if(bCastingIgnoreRot)
+		bCastingIgnoreRot = false;
 }

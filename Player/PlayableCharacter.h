@@ -98,6 +98,11 @@ public:
 	UFUNCTION()
 	virtual void MiscTrigger2();
 
+	// 기본공격 콤보
+public:
+	bool bCanBasicAttackCombo;
+	bool bDontEndBasicAttack;
+
 
 	// ! 공격 실행 함수 //
 protected:
@@ -113,7 +118,7 @@ public:
 	UFUNCTION()
 	void EndJumpFromNotify();
 	UFUNCTION()
-	void EndActingFromNotify();
+	virtual void EndActingFromNotify();
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -192,6 +197,7 @@ private:
 	UPlayerHUD* PlayerHUD;
 public:
 	void SetPlayerHUD(UPlayerHUD* _PlayerHUD) { PlayerHUD = _PlayerHUD; };
+	UPlayerHUD* GetPlayerHUD() { return PlayerHUD; }
 
 	// 던전 관련
 private:
