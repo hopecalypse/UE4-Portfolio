@@ -15,6 +15,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/TextBlock.h"
+#include "Core/AudioDataAsset.h"
 #include "Core/GameManagerInstance.h"
 #include "Core/PortFolioGameModeBase.h"
 #include "Dungeon/DungeonManager.h"
@@ -22,6 +23,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Monster/MonsterGeneralCharacter.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "Manager/SoundManager.h"
 #include "UI/PlayerHUD.h"
 
 // Sets default values
@@ -143,6 +145,9 @@ void APlayableCharacter::GetExp(int32 _Exp)
 
 void APlayableCharacter::LevelUp()
 {
+	if(PlayerInfo.Level == 3)
+		return;
+	
 	LOGTEXT_ERROR(TEXT("레벨 업!"));
 	FActorSpawnParameters _SpawnParams;
 	_SpawnParams.OverrideLevel = GetLevel();
@@ -153,6 +158,9 @@ void APlayableCharacter::LevelUp()
 	SetPlayerStat(PlayerInfo.Level);
 
 	PlayerHUD->SyncExpBar(PlayerInfo.CurrentExp, PlayerInfo.NextExp);
+	
+	// 효과음 재생
+	UGameplayStatics::PlaySound2D(GetWorld(), USoundManager::Instance()->Data->LevelUp);
 }
 
 void APlayableCharacter::SetCurrentState(EPlayerState NextState)
@@ -199,6 +207,11 @@ void APlayableCharacter::UpdateDungeonLocation()
 	UDungeonManager::Instance()->UpdatePlayerLocation(this);
 }
 
+void APlayableCharacter::CheatLevelUp()
+{
+	LevelUp();
+}
+
 #pragma region 기본 조작 관련(이동, 점프)
 
 // 조작 관련
@@ -221,6 +234,7 @@ void APlayableCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Button6", IE_Pressed, this, &APlayableCharacter::GetActionInput_Skill3);
 
 	PlayerInputComponent->BindAction(TEXT("Tab"), IE_Pressed, this, &APlayableCharacter::SwitchCharacter);
+	PlayerInputComponent->BindAction(TEXT("LevelUp"), IE_Pressed, this, &APlayableCharacter::CheatLevelUp);
 }
 
 void APlayableCharacter::MoveForward(float AxisValue)
@@ -644,6 +658,16 @@ void APlayableCharacter::StartDeath()
 {
 	PlayerHUD->SetVisibility(ESlateVisibility::Hidden);
 	SetCurrentState(EPlayerState::E_Dying);
+
+	FTimerHandle _TimerHandle;
+	FTimerDelegate _TimerDelegate;
+	_TimerDelegate.BindUFunction(this, TEXT("GameOver"));
+	GetWorld()->GetTimerManager().SetTimer(_TimerHandle, _TimerDelegate, 3.f, false);
+}
+
+void APlayableCharacter::GameOver()
+{
+	UDungeonManager::Instance()->GameOver();
 }
 
 #pragma endregion 

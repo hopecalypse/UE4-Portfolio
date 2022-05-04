@@ -4,7 +4,10 @@
 #include "Combat/Boss/BossPattern3.h"
 
 #include "PortFolio.h"
+#include "Core/AudioDataAsset.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Manager/SoundManager.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Player/PlayableCharacter.h"
 
@@ -26,7 +29,9 @@ ABossPattern3::ABossPattern3()
 void ABossPattern3::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Boss_Skill3Ball, GetActorLocation(), FRotator::ZeroRotator,
+		1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 }
 
 void ABossPattern3::Tick(float DeltaTime)
@@ -55,6 +60,9 @@ void ABossPattern3::Tick(float DeltaTime)
 				_Player->GetAttacked(30.f);
 			}
 		}
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Boss_Skill3Hit, GetActorLocation(), FRotator::ZeroRotator,
+		1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	}
 }
 

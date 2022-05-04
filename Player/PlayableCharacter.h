@@ -113,6 +113,8 @@ protected:
 public:
 	void GetAttacked(float _AttackDamage);
 	void StartDeath();
+	UFUNCTION()
+	void GameOver();
 
 public:
 	UFUNCTION()
@@ -216,5 +218,9 @@ public:
 	UPaperSpriteComponent* MinimapSprite;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	UPaperSprite* PlayerSprite;
+
+private:
+	UFUNCTION()
+	void CheatLevelUp();
 	
 };

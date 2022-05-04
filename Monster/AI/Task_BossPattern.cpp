@@ -6,8 +6,11 @@
 #include "MonsterAIController.h"
 #include "PortFolio.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Core/AudioDataAsset.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Manager/SoundManager.h"
 #include "Monster/BossMonsterBase.h"
 #include "Monster/MonsterGeneralCharacter.h"
 #include "Player/PlayableCharacter.h"
@@ -143,6 +146,9 @@ void UTask_BossPattern::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			BossCharacter->PlayAnimMontage(BossCharacter->Pattern2Montage, 1.f);
 			BossCharacter->SetMonsterState(EMonsterState::E_Attack);
 			bPatternStarted = true;
+			// 효과음 재생
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Boss_Skill2Ready, BossCharacter->GetActorLocation(),
+				FRotator::ZeroRotator, 1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 		}
 	}
 	// 패턴3-> 캐스팅 후 박수 칠때마다 플레이어 자리에 번개
@@ -174,6 +180,9 @@ void UTask_BossPattern::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			{
 				BossAnimInstance->Montage_JumpToSection(TEXT("Execute"), BossCharacter->Pattern3Montage);
 				PatternPhase++;
+				// 효과음
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Boss_Skill3Cast, BossCharacter->GetActorLocation(),
+					FRotator::ZeroRotator, 1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 			}
 		}
 		

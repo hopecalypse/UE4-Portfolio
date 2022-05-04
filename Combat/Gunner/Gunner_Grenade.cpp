@@ -5,8 +5,11 @@
 
 #include "PortFolio.h"
 #include "Components/BoxComponent.h"
+#include "Core/AudioDataAsset.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Manager/SoundManager.h"
 #include "Monster/MonsterGeneralCharacter.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -86,4 +89,7 @@ void AGunner_Grenade::ExplodeGrenade()
 	}
 
 	SetLifeSpan(1.f);
+
+	// 효과음 재생
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Gunner_GrenadeExplode, GetActorLocation(), FRotator::ZeroRotator, 1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 }

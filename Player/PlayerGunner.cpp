@@ -9,9 +9,12 @@
 #include "Combat/Gunner/Gunner_Missile.h"
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Core/AudioDataAsset.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Manager/SoundManager.h"
 #include "Monster/MonsterGeneralCharacter.h"
 
 APlayerGunner::APlayerGunner()
@@ -225,6 +228,9 @@ void APlayerGunner::SpawnLeftMissiles_Skill2()
 	//_GenMissile->FinishSpawning(_GenMissile->GetTransform());
 	if(SavedTargetForMissile != nullptr)
 		_GenMissile->InitMissile(SavedTargetForMissile->GetRootComponent(), ActingInfos.Skill2AttackPower);
+
+	// 효과음 재생
+	UGameplayStatics::PlaySound2D(GetWorld(), USoundManager::Instance()->Data->Gunner_RocketLaunch);
 	
 	LeftMissileCount--;
 	// 반복 타이머 설정
@@ -282,7 +288,9 @@ void APlayerGunner::ActionTrigger_Skill3()
 
 void APlayerGunner::MiscTrigger1()
 {
-	
+	// 애니메이션 재생
+	AnimInstance->Montage_Play(Skill3Montage);
+	AnimInstance->Montage_JumpToSection(TEXT("Looping"));
 }
 
 void APlayerGunner::ExecuteSkill3()
@@ -291,6 +299,9 @@ void APlayerGunner::ExecuteSkill3()
 
 	if(Skill3Laser == nullptr)
 		return;
+
+	// 효과음 재생
+	UGameplayStatics::PlaySound2D(GetWorld(), USoundManager::Instance()->Data->Gunner_LaserLoop);
 	
 	// 범위 설정
 	FVector _Start = Skill3Laser->GetActorLocation();
@@ -319,6 +330,8 @@ void APlayerGunner::ExecuteSkill3()
 				//LOGTEXT_LOG(TEXT("%s"), *_HitResults[i].ImpactPoint.ToString())
 				_LaserHitActor->FinishSpawning(_LaserHitActor->GetTransform());
 				_LaserHitActor->SetActorLocation(_HitResults[i].ImpactPoint);
+
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Gunner_LaserHit, _HitResults[i].Location, FRotator::ZeroRotator, 0.6f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 			}
 		}
 	}

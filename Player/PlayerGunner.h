@@ -66,6 +66,7 @@ private:
 	virtual void MiscTrigger1() override;
 	void ExecuteSkill3();
 	void EndSkill3();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
 	UAnimMontage* Skill3Montage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))

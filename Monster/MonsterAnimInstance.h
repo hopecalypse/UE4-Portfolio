@@ -43,6 +43,8 @@ private:
 	void AnimNotify_EndHitReact();
 	UFUNCTION()
 	void AnimNotify_EndDying();
+	UFUNCTION()
+	void AnimNotify_BossSound();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

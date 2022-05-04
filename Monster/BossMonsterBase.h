@@ -48,6 +48,8 @@ private:
 	virtual void ChangeMonsterHp(float _HpChangeValue) override;
 	virtual void EndDying_FromNotify() override;
 
+public:
+	void PlayBossSound_FromNotify();
 	
 	
 };

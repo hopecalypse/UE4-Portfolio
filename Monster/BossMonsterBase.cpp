@@ -10,9 +10,11 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/WidgetComponent.h"
+#include "Core/AudioDataAsset.h"
 #include "Dungeon/DungeonManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Manager/SoundManager.h"
 #include "Player/PlayableCharacter.h"
 #include "UI/PlayerHUD.h"
 
@@ -108,6 +110,10 @@ void ABossMonsterBase::AttackTrigger_FromNotify()
 				_Player->GetAttacked(50.f);
 			}
 		}
+
+		// 효과음
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Boss_Skill2Impact, GetActorLocation(), FRotator::ZeroRotator,
+			1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	}
 	else if(AttackType == EMonsterAttackType::E_Pattern3)
 	{
@@ -120,6 +126,10 @@ void ABossMonsterBase::AttackTrigger_FromNotify()
 		AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 		
 		GetWorld()->SpawnActor<ABossPattern3>(Pattern3Actor, Player->GetActorLocation(), FRotator::ZeroRotator, _SpawnParams);
+
+		// 효과음 재생
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Boss_Skill3Clap, GetActorLocation(), FRotator::ZeroRotator,
+			1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	}
 }
 
@@ -162,4 +172,9 @@ void ABossMonsterBase::EndDying_FromNotify()
 
 	// 클리어 스크린
 	UDungeonManager::Instance()->ClearBoss();
+}
+
+void ABossMonsterBase::PlayBossSound_FromNotify()
+{
+	
 }

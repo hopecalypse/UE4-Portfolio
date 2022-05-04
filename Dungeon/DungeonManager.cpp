@@ -42,6 +42,10 @@ UDungeonManager::UDungeonManager()
 	static ConstructorHelpers::FClassFinder<UUserWidget> _ClearScreenClass(TEXT("WidgetBlueprint'/Game/_Blueprints/UI/WBP_ClearScreen.WBP_ClearScreen_C'"));
 	if(_ClearScreenClass.Succeeded())
 		ClearScreenClass = _ClearScreenClass.Class;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> _GameOverClass(TEXT("WidgetBlueprint'/Game/_Blueprints/UI/WBP_GameOverScreen.WBP_GameOverScreen_C'"));
+	if(_GameOverClass.Succeeded())
+		GameOverScreen = _GameOverClass.Class;
 }
 
 void UDungeonManager::GenerateInst(UObject* _GameInstance)
@@ -684,5 +688,14 @@ void UDungeonManager::ClearBoss()
 	_ClearScreenWidget->AddToViewport();
 }
 
-
+void UDungeonManager::GameOver()
+{
+	FInputModeUIOnly _UIMode;
+	PlayerController->SetInputMode(_UIMode);
+	PlayerController->SetShowMouseCursor(true);
+	
+	UUserWidget* _GameOverWidget = CreateWidget(GetWorld(), GameOverScreen);
+	_GameOverWidget->AddToViewport();
+	
+}
 

@@ -69,4 +69,11 @@ void UMonsterAnimInstance::AnimNotify_EndDying()
 	MonsterCharacter->EndDying_FromNotify();
 }
 
+void UMonsterAnimInstance::AnimNotify_BossSound()
+{
+	ABossMonsterBase* _Boss = Cast<ABossMonsterBase>(MonsterCharacter);
+	if(_Boss == nullptr)
+		_Boss->PlayBossSound_FromNotify();
+}
+
 

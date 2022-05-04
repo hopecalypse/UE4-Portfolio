@@ -4,7 +4,10 @@
 #include "Combat/Gunner/Gunner_Missile.h"
 
 #include "Components/BoxComponent.h"
+#include "Core/AudioDataAsset.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Manager/SoundManager.h"
 #include "Monster/MonsterGeneralCharacter.h"
 #include "Particles/ParticleSystemComponent.h"
 
@@ -66,6 +69,8 @@ void AGunner_Missile::OnProjectileOverlap(UPrimitiveComponent* OverlappedCompone
 		_Monster->TrySetHitReaction();
 		_Monster->ChangeMonsterHp(Damage);
 	}
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Gunner_RocketHit, GetActorLocation(), GetActorRotation(), 1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	
 	DestroyMissile();
 }

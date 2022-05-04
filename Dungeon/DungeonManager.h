@@ -172,5 +172,10 @@ public:
 public:
 	TSubclassOf<UUserWidget> ClearScreenClass;
 	void ClearBoss();
+
+	// 게임오버 UI
+public:
+	TSubclassOf<UUserWidget> GameOverScreen;
+	void GameOver();
 	
 };

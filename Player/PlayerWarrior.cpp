@@ -8,6 +8,7 @@
 #include "PortFolio.h"
 #include "Combat/ProjectileGeneral.h"
 #include "Components/CapsuleComponent.h"
+#include "Core/AudioDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -15,7 +16,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Manager/EffectManager.h"
+#include "Manager/SoundManager.h"
 #include "Monster/MonsterGeneralCharacter.h"
+#include "Sound/SoundCue.h"
 
 APlayerWarrior::APlayerWarrior()
 {
@@ -53,11 +56,21 @@ void APlayerWarrior::Tick(float DeltaSeconds)
 	TickRotatingSkill2(DeltaSeconds);
 }
 
+void APlayerWarrior::ActionTrigger_AttackBasic()
+{
+	Super::ActionTrigger_AttackBasic();
+	// 소리 재생
+	UGameplayStatics::PlaySound2D(GetWorld(), USoundManager::Instance()->Data->Warrior_SwordQueue);
+}
+
 void APlayerWarrior::GetActionInput_Skill1()
 {
 	Super::GetActionInput_Skill1();
 
 	bUseControllerRotationYaw = false;
+
+	// 소리 재생
+	UGameplayStatics::PlaySound2D(GetWorld(), USoundManager::Instance()->Data->Warrior_Skill1Impact);
 }
 
 // 스킬1: 땅 찍으며 범위 안 적들에게 데미지
@@ -103,6 +116,8 @@ void APlayerWarrior::GetActionInput_Skill2()
 	bUseControllerRotationYaw = false;
 	// 애니메이션 플레이
 	AnimInstance->Montage_Play(Skill2Montage);
+	// 효과음
+	UGameplayStatics::PlaySound2D(GetWorld(), USoundManager::Instance()->Data->Warrior_Skill2Voice);
 }
 
 void APlayerWarrior::ActionTrigger_Skill2()
@@ -116,6 +131,8 @@ void APlayerWarrior::ActionTrigger_Skill2()
 	UEffectManager::Instance()->PoseEffectOnce(this, 5.f);
 	// 포즈 이펙트 설정
 	UEffectManager::Instance()->SetPoseEffectLoop(true, this, 0.01f, 0.01f);
+	// 효과음
+	UGameplayStatics::PlaySound2D(GetWorld(), USoundManager::Instance()->Data->Warrior_Skill2);
 }
 
 void APlayerWarrior::TickRotatingSkill2(float _DeltaTime)
@@ -216,7 +233,31 @@ void APlayerWarrior::TickCastingSkill3(float _DeltaTime)
 void APlayerWarrior::GetActionInput_AttackBasic()
 {
 	if(!bIsCasting)
-		Super::GetActionInput_AttackBasic();
+	{
+		//Super::GetActionInput_AttackBasic();
+		if(GetCurrentState() == EPlayerState::E_Dying || GetCurrentState() == EPlayerState::E_Jumping)	return;
+
+		// 공격중일 때-> 콤보 가능하면 실행
+		if((GetCurrentState() == EPlayerState::E_ActingMoving || GetCurrentState() == EPlayerState::E_ActingStatic) && bCanBasicAttackCombo)
+		{
+			AnimInstance->BasicAttackNum++;
+			if(AnimInstance->BasicAttackNum != 2)
+				bDontEndBasicAttack = true;
+			else
+				bDontEndBasicAttack = false;
+			return;
+		}
+
+		// 실행~
+		// 공격 유형에 따라 이동 가능 여부 판별
+		EPlayerState _ActingState = ActingInfos.BasicAttackMovable ? EPlayerState::E_ActingMoving : EPlayerState::E_ActingStatic;
+		// 상태State 설정
+		SetCurrentState(_ActingState);
+		// Acting Type 설정
+		SetCurrentActingType(EActingType::E_AttackBasic);
+		// 애니메이션 재생
+		AnimInstance->PlayActingAnimation(EActingType::E_AttackBasic);
+	}
 	else
 		Execute_Skill3();
 }

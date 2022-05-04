@@ -24,6 +24,11 @@ private:
 	// 필요 오브젝트
 	APlayerController* PlayerController;
 
+	// 기본공격
+private:
+	virtual void GetActionInput_AttackBasic() override;
+	virtual void ActionTrigger_AttackBasic() override;
+
 	// 스킬1 함수 오버라이드
 private:
 	virtual void GetActionInput_Skill1() override;
@@ -53,7 +58,6 @@ private:
 	virtual void GetActionInput_Skill3() override;
 	virtual void ActionTrigger_Skill3() override;
 	void TickCastingSkill3(float _DeltaTime);
-	virtual void GetActionInput_AttackBasic() override;
 	void Execute_Skill3();
 	void TickFlySkill3(float _DeltaTime);
 	virtual void MiscTrigger1() override;

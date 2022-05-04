@@ -35,6 +35,7 @@ void UGameManagerInstance::Init()
 	UEffectManager::GenerateInst(this);
 	UDungeonManager::GenerateInst(this);
 	UPathManager::GenerateInst(this);
+	USoundManager::GenerateInst(this);
 }
 
 void UGameManagerInstance::Shutdown()
@@ -45,6 +46,7 @@ void UGameManagerInstance::Shutdown()
 	UEffectManager::DestroyManager();
 	UDungeonManager::DestroyManager();
 	UPathManager::DestroyManager();
+	USoundManager::DestroyManager();
 }
 
 void UGameManagerInstance::SelectPlayerClass(EPlayerClass _SelectClass)

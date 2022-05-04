@@ -4,6 +4,9 @@
 #include "Combat/Boss/BossPattern1.h"
 
 #include "Components/SphereComponent.h"
+#include "Core/AudioDataAsset.h"
+#include "Kismet/GameplayStatics.h"
+#include "Manager/SoundManager.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Player/PlayableCharacter.h"
 
@@ -50,6 +53,9 @@ void ABossPattern1::OnOverlapPlayer(UPrimitiveComponent* OverlappedComponent, AA
 		HitParticle->Activate();
 
 		SetLifeSpan(2.f);
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Boss_Skill1Hit, GetActorLocation(), FRotator::ZeroRotator,
+			1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	}
 }
 

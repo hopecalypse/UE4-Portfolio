@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "SoundManager.generated.h"
 
+class UAudioDataAsset;
 /**
  * 
  */
@@ -13,6 +14,9 @@ UCLASS()
 class PORTFOLIO_API USoundManager : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	USoundManager();
 	
 private:
 	static USoundManager* ManagerInstance;
@@ -23,5 +27,10 @@ public:
 	static void DestroyManager();
 
 
+public:
+	UAudioDataAsset* Data;
+
+
+	
 	
 };

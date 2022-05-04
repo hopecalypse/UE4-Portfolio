@@ -9,11 +9,13 @@
 #include "PortFolio.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Core/AudioDataAsset.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Manager/PathManager.h"
+#include "Manager/SoundManager.h"
 #include "Monster/AI/MonsterAIController.h"
 #include "Player/PlayableCharacter.h"
 #include "UI/MonsterHpBar.h"
@@ -196,9 +198,12 @@ void AMonsterGeneralCharacter::AttackTrigger_FromNotify()
 				Cast<APlayableCharacter>(_HitResult.Actor)->GetAttacked(GetMonsterInfo().AttackPoint);
 			}
 		}
+
+		// 소리 재생
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Monster_Attack, GetActorLocation(), GetActorRotation(), 1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	
 		// 디버그 구체 그리기
-		#ifdef ENABLE_DRAW_DEBUG
+#ifdef ENABLE_DRAW_DEBUG
 		FVector _Vec = GetActorForwardVector() * _AttackRange;	// 방향 벡터
 		FVector _Center = GetActorLocation() + _Vec * 0.5f;
 		float _HalfHegiht = _AttackRange * 0.5f + _AttackRadius;
@@ -234,6 +239,9 @@ void AMonsterGeneralCharacter::AttackTrigger_FromNotify()
 		_GenProjectile->GetProjectileMovement()->InitialSpeed = _GenProjectile->MoveSpeed;
 		_GenProjectile->GetProjectileMovement()->MaxSpeed = _GenProjectile->MoveSpeed;
 		_GenProjectile->FinishSpawning(_GenProjectile->GetTransform());
+
+		// Shoot 사운드 재생
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Monster_Shoot, GetActorLocation(), GetActorRotation(), 1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	}
 	
 }
