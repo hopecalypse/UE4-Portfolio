@@ -275,7 +275,8 @@ void APlayerWarrior::Execute_Skill3()
 	
 	// 선택, 캐릭터 중간 위치로 날기
 	GetCharacterMovement()->GravityScale = 0.f;
-	FlyingLocation = FVector((GetActorLocation().X + SelectLocation.X / 2), (GetActorLocation().Y + SelectLocation.Y / 2), GetActorLocation().Z);
+	//FlyingLocation = FVector((GetActorLocation().X + SelectLocation.X / 2), (GetActorLocation().Y + SelectLocation.Y / 2), GetActorLocation().Z);
+	FlyingLocation = (GetActorLocation() + SelectLocation) / 2;
 	SelectDistance = FVector::Distance(GetActorLocation(), SelectLocation);
     bIsFlying = true;
 	

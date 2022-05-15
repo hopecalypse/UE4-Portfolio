@@ -26,6 +26,8 @@ ABossPattern1::ABossPattern1()
 	Particle->SetRelativeScale3D(FVector(2.f));
 	
 	HitParticle->SetAutoActivate(false);
+
+	RootCollision->SetCollisionProfileName(TEXT("OverlapPlayer"));
 }
 
 void ABossPattern1::BeginPlay()

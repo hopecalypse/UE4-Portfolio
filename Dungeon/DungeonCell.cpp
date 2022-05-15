@@ -12,7 +12,7 @@
 
 void UDungeonCell::InitCell(int _X, int _Y)
 {
-	Matrix = FVector2D(_X, _Y);
+	Matrix = FMatrix2D(_X, _Y);
 	// 언리얼 좌표계상 정면 = X, 우측 = Y 
 	Location = FVector(_Y * 600.f, _X * 600.f, 0.f);
 }
@@ -29,15 +29,14 @@ void UDungeonCell::GenerateLevel()
 	if(bRoom)
 	{
 		bFloor = true;
-		// 인접한 Cell도 Room이 아닐 시 벽세우기
-		// Left, Top, Right, Bottom
-		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(-1, 0)))
+		// 인접한 Cell이 Room이 아닐 시 벽세우기
+		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(-1, 0)))
 			SetWall(true, 1);
-		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(0, 1)))
+		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(0, 1)))
 			SetWall(true, 2);
-		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(1, 0)))
+		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(1, 0)))
 			SetWall(true, 3);
-		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(0, -1)))
+		if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(0, -1)))
 			SetWall(true, 4);
 	}
 
@@ -45,7 +44,6 @@ void UDungeonCell::GenerateLevel()
 	if(bRoad)
 	{
 		bFloor = true;
-		
 		// 방과 겹쳐있을 때
 		if(bRoom)
 		{
@@ -53,28 +51,28 @@ void UDungeonCell::GenerateLevel()
 			_SpawnParams.OverrideLevel = GetOuter()->GetWorld()->GetCurrentLevel();
 			_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			// 방과 이어지는 부분 벽을 제거하기 + 문 생성하기
-			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(-1, 0)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(-1, 0)))
+			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(-1, 0)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(-1, 0)))
 			{
 				SetWall(false, 1);
 				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
 				GetOuter()->GetWorld()->SpawnActor<AActor>(_DoorWayClss, Location, FRotator::ZeroRotator, _SpawnParams);
 				Room->DoorCell = this;
 			}
-			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(0, 1)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(0, 1)))
+			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(0, 1)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(0, 1)))
 			{
 				SetWall(false, 2);
 				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
 				GetOuter()->GetWorld()->SpawnActor<AActor>(_DoorWayClss, Location, FRotator(0.f, 90.f, 0.f), _SpawnParams);
 				Room->DoorCell = this;
 			}
-			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(1, 0)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(1, 0)))
+			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(1, 0)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(1, 0)))
 			{
 				SetWall(false, 3);
 				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
 				GetOuter()->GetWorld()->SpawnActor<AActor>(_DoorWayClss, Location, FRotator(0.f, 180.f, 0.f), _SpawnParams);
 				Room->DoorCell = this;
 			}
-			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FVector2D(0, -1)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(0, -1)))
+			if(UDungeonManager::Instance()->IsNotRoom(Matrix + FMatrix2D(0, -1)) && !UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(0, -1)))
 			{
 				SetWall(false, 4);
 				TSubclassOf<AActor> _DoorWayClss = UDungeonManager::Instance()->GetLevelData()->LeftDoorWall;
@@ -86,13 +84,13 @@ void UDungeonCell::GenerateLevel()
 		else
 		{
 			// 길이 아닌 방향에 벽 생성하기
-			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(-1, 0)))
+			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(-1, 0)))
 				SetWall(true, 1);
-			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(0, 1)))
+			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(0, 1)))
 				SetWall(true, 2);
-			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(1, 0)))
+			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(1, 0)))
 				SetWall(true, 3);;
-			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FVector2D(0, -1)))
+			if(UDungeonManager::Instance()->IsNotRoad(Matrix + FMatrix2D(0, -1)))
 				SetWall(true, 4);
 		}
 	}
@@ -177,28 +175,28 @@ void UDungeonCell::SetWall(bool _Value, int _Dir)
 	if(_Dir == 1)
 	{
 		bLeftWall = _Value;
-		UDungeonCell* _Cell = UDungeonManager::Instance()->CellMap.FindRef(Matrix + FVector2D(-1, 0));
+		UDungeonCell* _Cell = UDungeonManager::Instance()->FindCell(Matrix + FMatrix2D(-1, 0));
 		if(_Cell != nullptr)
 			_Cell->bRightWallSide = _Value;
 	}
 	else if(_Dir == 2)
 	{
 		bTopWall = _Value;
-		UDungeonCell* _Cell = UDungeonManager::Instance()->CellMap.FindRef(Matrix + FVector2D(0, 1));
+		UDungeonCell* _Cell = UDungeonManager::Instance()->FindCell(Matrix + FMatrix2D(0, 1));
 		if(_Cell != nullptr)
 			_Cell->bBottoWallSide = _Value;
 	}
 	else if(_Dir == 3)
 	{
 		bRightWall = _Value;
-		UDungeonCell* _Cell = UDungeonManager::Instance()->CellMap.FindRef(Matrix + FVector2D(1, 0));
+		UDungeonCell* _Cell = UDungeonManager::Instance()->FindCell(Matrix + FMatrix2D(1, 0));
 		if(_Cell != nullptr)
 			_Cell->bLeftWallSide = _Value;
 	}
 	else if(_Dir == 4)
 	{
 		bBottomWall = _Value;
-		UDungeonCell* _Cell = UDungeonManager::Instance()->CellMap.FindRef(Matrix + FVector2D(0, -1));
+		UDungeonCell* _Cell = UDungeonManager::Instance()->FindCell(Matrix + FMatrix2D(0, -1));
 		if(_Cell != nullptr)
 			_Cell->bTopWallSide = _Value;
 	}

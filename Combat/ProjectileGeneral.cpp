@@ -144,7 +144,10 @@ void AProjectileGeneral::OnProjectileHit(UPrimitiveComponent* HitComponent, AAct
 		_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		_SpawnParams.bDeferConstruction = true;
 
-		AAfterParticle* _AfterParticle = GetWorld()->SpawnActor<AAfterParticle>(AfterDestroyParticle, GetActorLocation(), GetActorRotation(), _SpawnParams);
+		FVector _Location = GetActorLocation();
+		_Location.Z = 0.f;
+
+		AAfterParticle* _AfterParticle = GetWorld()->SpawnActor<AAfterParticle>(AfterDestroyParticle, _Location, FRotator::ZeroRotator, _SpawnParams);
 		_AfterParticle->FinishSpawning(_AfterParticle->GetTransform());
 		_AfterParticle->SetLifeSpan(2.f);
 	}

@@ -335,21 +335,22 @@ void APlayerMage::ExecuteSkill3()
 
 void APlayerMage::MiscTrigger1()
 {
-	// 생성 위치 설정
+	// 랜덤 생성 위치
 	float _RandRange = 600.f;
-	FVector _RandLocation = CastingDecalActor->GetActorLocation() + FVector(FMath::FRandRange(-_RandRange, _RandRange), FMath::FRandRange(-_RandRange, _RandRange), 1000.f);
+	FVector _RandLocation = CastingDecalActor->GetActorLocation() + FVector(FMath::FRandRange(-_RandRange, _RandRange), 
+							FMath::FRandRange(-_RandRange, _RandRange), 1000.f);
 	
 	// 메테오 생성
 	FActorSpawnParameters _SpawnParam = {};
 	_SpawnParam.OverrideLevel = GetLevel();
 	_SpawnParam.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	_SpawnParam.bDeferConstruction = true;
 
-	AProjectileGeneral* _GenProj = GetWorld()->SpawnActor<AProjectileGeneral>(ActingInfos.Skill3Projectile, _RandLocation, FRotator::ZeroRotator, _SpawnParam);
-	_GenProj->SetAttackDamage(ActingInfos.Skill3AttackPower);
-	_GenProj->bHitOnTerrain = true;
-	_GenProj->GetProjectileMovement()->ProjectileGravityScale = FMath::FRandRange(0.4f, 1.f);
-	_GenProj->FinishSpawning(_GenProj->GetTransform());
+	AProjectileGeneral* _MeteoRock = GetWorld()->SpawnActor<AProjectileGeneral>(ActingInfos.Skill3Projectile, 
+									 _RandLocation, FRotator::ZeroRotator, _SpawnParam);
+	_MeteoRock->SetAttackDamage(ActingInfos.Skill3AttackPower);
+	_MeteoRock->bHitOnTerrain = true;
+	// Gravity(속도) 랜덤 할당
+	_MeteoRock->GetProjectileMovement()->ProjectileGravityScale = FMath::FRandRange(0.4f, 1.f);
 }
 
 void APlayerMage::MiscTrigger2()

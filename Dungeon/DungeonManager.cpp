@@ -80,10 +80,26 @@ TArray<UDungeonCell*> UDungeonManager::GetCellsInside(FRect _Rect)
 	{
 		for(int x = _Rect.X; x < _Rect.X + _Rect.Width; x++)
 		{
-			_CellArray.Add(CellMap.FindRef(FVector2D(x, y)));
+			UDungeonCell* _FoundCell = FindCell(FMatrix2D(x, y));
+			if(_FoundCell != nullptr)
+				_CellArray.Add(_FoundCell);
 		}
 	}
 	return _CellArray;
+}
+
+UDungeonCell* UDungeonManager::FindCell(FMatrix2D _Mat)
+{
+	UDungeonCell* _Cell = nullptr;
+	for(int i = 0; i < CellList.Num(); i++)
+	{
+		if(CellList[i]->Matrix == _Mat)
+		{
+			_Cell = CellList[i];
+			break;
+		}
+	}
+	return _Cell;
 }
 
 void UDungeonManager::GenerateGrid(int _Width, int _Height)
@@ -103,7 +119,8 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 		{
 			UDungeonCell* _GenCell = NewObject<UDungeonCell>(this);
 			_GenCell->InitCell(j, i);
-			CellMap.Add(FVector2D(j, i), _GenCell);
+			//CellMap.Add(FMatrix2D(j, i), _GenCell);
+			CellList.Add(_GenCell);
 			
 			AActor* _Visualizer = GetWorld()->SpawnActor<AActor>(LevelDataAsset->TesterFloor, _GenCell->Location, FRotator::ZeroRotator, _SpawnParams);
 			_GenCell->Visualizer = _Visualizer;
@@ -127,11 +144,10 @@ void UDungeonManager::GenerateGrid(int _Width, int _Height)
 						_PathNode = UPathManager::Instance()->PathNodeMap.FindRef(FVector2D((j * 4) + l, (i * 4) + k));
 					}
 					
-					// 해당 Cell 내부 의 Node로 할당
+					// 해당 Cell에 속하는 PathNode로 지정
 					FVector2D _CellMatrix = FVector2D(l, k);
 					_GenCell->PathNodes.Add(_CellMatrix, _PathNode);
 					_PathNode->Cell = _GenCell;
-					//UKismetSystemLibrary::DrawDebugPoint(this, _PathNode->Location, 10.f + k + l, _Color, 100.f);
 				}
 			}
 		}
@@ -168,7 +184,7 @@ void UDungeonManager::StartSplitTree(int _Count)
 
 void UDungeonManager::SplitTree(FTreeNode* _TreeNode, int _Depth)
 {
-	// 끝 감지 조건: Count만큼 || 최소 사이즈(?)
+	// 가로나 세로 길이가 3보다 작으면 해당 노드 Leaf로 설정후 종료
 	if(_Depth == 0 || _TreeNode->Rect.Width <= 3 || _TreeNode->Rect.Height <= 3)
 	{
 		_TreeNode->bIsLeaf = true;
@@ -179,26 +195,21 @@ void UDungeonManager::SplitTree(FTreeNode* _TreeNode, int _Depth)
 	// 트리 표시하기
 	_TreeNode->bIsLeaf = false;
 	TreeDepthLists[TreeDepthLists.Num() - _Depth - 1].Add(_TreeNode);
-	LOGTEXT_LOG(TEXT("Dep[%d]:X(%d), Y(%d), Width(%d), Height(%d)"), _Depth, _TreeNode->Rect.X, _TreeNode->Rect.Y, _TreeNode->Rect.Width, _TreeNode->Rect.Height);
 
-	// 랜덤 분할 비율 결정
+	// 랜덤하게 분할 비율 결정
 	float _RandRatio = FMath::RandRange(0.4f, 0.6f);
 
 	// 가로 분할
 	if(_TreeNode->Rect.Width >= _TreeNode->Rect.Height)
 	{
-		// 분할 기준점 정하기
-		int _Split = FMath::RoundToInt(_TreeNode->Rect.Width * _RandRatio);
-		
+		int _Split = FMath::RoundToInt(_TreeNode->Rect.Width * _RandRatio);	
 		_TreeNode->Left = new FTreeNode(_TreeNode->Rect.X, _TreeNode->Rect.Y, _Split, _TreeNode->Rect.Height);
 		_TreeNode->Right = new FTreeNode(_TreeNode->Rect.X + _Split, _TreeNode->Rect.Y, _TreeNode->Rect.Width - _Split, _TreeNode->Rect.Height);
 	}
 	// 세로 분할
 	else
 	{
-		// 분할 기준점 정하기
 		int _Split = FMath::RoundToInt(_TreeNode->Rect.Height * _RandRatio);
-		
 		_TreeNode->Left = new FTreeNode(_TreeNode->Rect.X, _TreeNode->Rect.Y, _TreeNode->Rect.Width, _Split);
 		_TreeNode->Right = new FTreeNode(_TreeNode->Rect.X, _TreeNode->Rect.Y + _Split, _TreeNode->Rect.Width, _TreeNode->Rect.Height - _Split);
 	}
@@ -226,22 +237,22 @@ bool UDungeonManager::VisualizeTree(int _Depth)
 		// Bottom
 		FVector _BottomStart = FVector(_TreeNode->Rect.Y * 600.f - 280.f, -280.f + _TreeNode->Rect.X * 600.f, 10.f * _Depth);
 		FVector _BottomEnd = FVector(_TreeNode->Rect.Y * 600.f - 280.f, -280.f + (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f, 10.f * _Depth);
-		UKismetSystemLibrary::DrawDebugLine(this,  _BottomStart, _BottomEnd, _Color, 10.f, 100.f);
+		UKismetSystemLibrary::DrawDebugLine(this,  _BottomStart, _BottomEnd, _Color, 30.f, 100.f);
 		
 		// Top
 		FVector _TopStart = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, -280.f + _TreeNode->Rect.X * 600.f, 10.f * _Depth);
 		FVector _TopEnd = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, -280.f + (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f, 10.f * _Depth);
-		UKismetSystemLibrary::DrawDebugLine(this, _TopStart, _TopEnd, _Color, 10.f, 100.f);
+		UKismetSystemLibrary::DrawDebugLine(this, _TopStart, _TopEnd, _Color, 30.f, 100.f);
 		
 		// Left
 		FVector _LeftStart = FVector(_TreeNode->Rect.Y * 600.f - 280.f, _TreeNode->Rect.X * 600.f - 280.f, 10.f * _Depth);
 		FVector _LeftEnd = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, _TreeNode->Rect.X * 600.f - 280.f, 10.f * _Depth);
-		UKismetSystemLibrary::DrawDebugLine(this, _LeftStart, _LeftEnd, _Color, 10.f, 100.f);
+		UKismetSystemLibrary::DrawDebugLine(this, _LeftStart, _LeftEnd, _Color, 30.f, 100.f);
 		
 		// Right
 		FVector _RightStart = FVector(_TreeNode->Rect.Y * 600.f - 280.f, (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f - 280.f, 10.f * _Depth);
 		FVector _RightEnd = FVector((_TreeNode->Rect.Y + _TreeNode->Rect.Height) * 600.f - 280.f, (_TreeNode->Rect.X + _TreeNode->Rect.Width) * 600.f - 280.f, 10.f * _Depth);
-		UKismetSystemLibrary::DrawDebugLine(this, _RightStart, _RightEnd, _Color, 10.f, 100.f);
+		UKismetSystemLibrary::DrawDebugLine(this, _RightStart, _RightEnd, _Color, 30.f, 100.f);
 	}
 	
 	return _Flag;
@@ -283,7 +294,8 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 		// Room의 Rect 할당
 		FRect* _Rect = new FRect(_X, _Y, _Width, _Height);
 		_Room->Rect = _Rect;
-		_Room->CenterCell = CellMap.FindRef(FVector2D(_X + FMath::RoundToInt(_Width / 2), _Y + FMath::RoundToInt(_Height / 2)));
+		//_Room->CenterCell = CellMap.FindRef(FMatrix2D(_X + FMath::DivideAndRoundNearest(_Width, 2), _Y + FMath::DivideAndRoundNearest(_Height, 2)));
+		_Room->CenterCell = FindCell(FMatrix2D(_X + FMath::DivideAndRoundNearest(_Width, 2), _Y + FMath::DivideAndRoundNearest(_Height, 2)));
 
 		// Room 콜라이더 생성
 		float _XStart = _X * 600.f - 300.f;
@@ -323,9 +335,10 @@ void UDungeonManager::GenerateRoom(FTreeNode* _TreeNode)
 	}
 }
 
-bool UDungeonManager::IsNotRoom(FVector2D _Matrix)
+bool UDungeonManager::IsNotRoom(FMatrix2D _Matrix)
 {
-	UDungeonCell* _Cell = CellMap.FindRef(_Matrix);
+	//UDungeonCell* _Cell = CellMap.FindRef(_Matrix);
+	UDungeonCell* _Cell = FindCell(_Matrix);
 	if(_Cell == nullptr)
 		return true;
 	else
@@ -357,7 +370,8 @@ void UDungeonManager::GenerateRoad(FTreeNode* _TreeNode)
 	// 가로
 	for(int i = FMath::Min(_LeftCenter.X, _RightCenter.X); i <= FMath::Max(_LeftCenter.X, _RightCenter.X); i++)
 	{
-		UDungeonCell* _RoadCell = CellMap.FindRef(FVector2D(i, _LeftCenter.Y));
+		//UDungeonCell* _RoadCell = CellMap.FindRef(FMatrix2D(i, _LeftCenter.Y));
+		UDungeonCell* _RoadCell = FindCell(FMatrix2D(i, _LeftCenter.Y));
 		_RoadCell->bRoad = true;
 		UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Blue, FRotator::ZeroRotator, 10.f);
 
@@ -368,7 +382,7 @@ void UDungeonManager::GenerateRoad(FTreeNode* _TreeNode)
 	// 세로
 	for(int i = FMath::Min(_LeftCenter.Y, _RightCenter.Y); i <= FMath::Max(_LeftCenter.Y, _RightCenter.Y); i++)
 	{
-		UDungeonCell* _RoadCell = CellMap.FindRef(FVector2D(_LeftCenter.X, i));
+		UDungeonCell* _RoadCell = FindCell(FMatrix2D(_LeftCenter.X, i));
 		_RoadCell->bRoad = true;
 		UKismetSystemLibrary::DrawDebugBox(this, _RoadCell->Location + FVector(0.f, 0.f, 100.f), FVector(280.f), FLinearColor::Red, FRotator::ZeroRotator, 10.f);
 
@@ -385,9 +399,9 @@ FVector2D UDungeonManager::GetRectCenter(FRect _Rect)
 	return FVector2D(_Rect.X + FMath::RoundToInt(_Rect.Width / 2), _Rect.Y + FMath::RoundToInt(_Rect.Height / 2));
 }
 
-bool UDungeonManager::IsNotRoad(FVector2D _Matrix)
+bool UDungeonManager::IsNotRoad(FMatrix2D _Matrix)
 {
-	UDungeonCell* _Cell = CellMap.FindRef(_Matrix);
+	UDungeonCell* _Cell = FindCell(_Matrix);
 	if(_Cell == nullptr)
 		return true;
 	else
@@ -506,7 +520,7 @@ void UDungeonManager::GenerateProps()
 				{
 					if((x - _XStart) % _XCount == 1)
 					{
-						UDungeonCell* _Cell = CellMap.FindRef(FVector2D(x, y));
+						UDungeonCell* _Cell = FindCell(FMatrix2D(x, y));
 						if(_Cell->Room != nullptr)
 						{
 							if(_Cell->Room->CenterCell != _Cell)
@@ -527,17 +541,13 @@ void UDungeonManager::GenerateMonster()
 	{
 		if(!RoomList[i]->bPlayerStart && !RoomList[i]->bBossRoom)
 		{
-			UDungeonRoom* _CurRoom = RoomList[i];
-				
 			// 몬스터 개수
 			int _Count = FMath::RandRange(3, 6);
 			
 			// 방(Room) 내의 랜덤 Cell 선택하기
 			TArray<UDungeonCell*> _RandCells;
 			while (_RandCells.Num() < _Count)
-			{
 				_RandCells.AddUnique(RoomList[i]->Cells[FMath::RandRange(0, RoomList[i]->Cells.Num() - 1)]);
-			}
 			
 			// 몬스터 스폰하기
 			for(int j = 0; j < _Count; j++)
@@ -547,12 +557,12 @@ void UDungeonManager::GenerateMonster()
 				FActorSpawnParameters _SpawnParams;
 				_SpawnParams.OverrideLevel = GetWorld()->GetCurrentLevel();
 				_SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-				_SpawnParams.bDeferConstruction = false;
 				
 				AMonsterGeneralCharacter* _Monster = GetWorld()->SpawnActor<AMonsterGeneralCharacter>(_MonsterClass, _RandCells[j]->Location + FVector(0.f, 0.f, 100.f), FRotator::ZeroRotator, _SpawnParams);
 
 				// Room에 몬스터 등록하기
-				_RandCells[j]->Room->Monsters.Add(_Monster);
+				RoomList[i]->Monsters.Add(_Monster);
+				//_RandCells[j]->Room->Monsters.Add(_Monster);
 			}
 		}
 	}
@@ -573,9 +583,9 @@ void UDungeonManager::GenerateMonster()
 
 void UDungeonManager::UpdateCells()
 {
-	for (auto _Cell : CellMap)
+	for (auto _Cell : CellList)
 	{
-		_Cell.Value->GenerateLevel();
+		_Cell->GenerateLevel();
 	}
 }
 
@@ -634,14 +644,10 @@ void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
 	// 플레이어가 현재 있는 Cell 찾기
 	UDungeonCell* _PlayerCell = FindClosestCell(_Player->GetActorLocation());
 	if(_PlayerCell == nullptr)
-	{
-		LOGTEXT_ERROR(TEXT("!!!오류: 플레이어 Cell 찾기 실패"));
 		return;
-	}
 
 	if(_PlayerCell->Room == nullptr)
 		return;
-	//LOGTEXT_LOG(TEXT("현재 플레이어 Cell:%s, Room?%d"), *_PlayerCell->Matrix.ToString(), _PlayerCell->bRoom);
 
 	// 플레이어 방 입장
 	if(_PlayerCell->bRoom && _PlayerCell->Room != nullptr)
@@ -653,13 +659,13 @@ void UDungeonManager::UpdatePlayerLocation(APlayableCharacter* _Player)
 UDungeonCell* UDungeonManager::FindClosestCell(FVector _Location)
 {
 	_Location.Z = 0.f;
-	UDungeonCell* _Closest = CellMap[FVector2D(0, 0)];
+	UDungeonCell* _Closest = CellList[0];
 	float _Distance = 10000000000.f;
 	for(int i = 0; i < YSize; i++)
 	{
 		for(int j = 0; j < XSize; j++)
 		{
-			UDungeonCell* _Cell = CellMap.FindRef(FVector2D(j, i));
+			UDungeonCell* _Cell = FindCell(FMatrix2D(j, i));
 			
 			if(_Cell != nullptr)
 			{
@@ -678,8 +684,6 @@ UDungeonCell* UDungeonManager::FindClosestCell(FVector _Location)
 
 void UDungeonManager::ClearBoss()
 {
-	LOGTEXT_LOG(TEXT("보스 클리어"));
-
 	FInputModeUIOnly _UIMode;
 	PlayerController->SetInputMode(_UIMode);
 	PlayerController->SetShowMouseCursor(true);

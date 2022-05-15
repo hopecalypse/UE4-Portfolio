@@ -5,6 +5,7 @@
 
 #include "PortFolio.h"
 #include "Dungeon/DungeonManager.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 UPathManager* UPathManager::ManagerInstance = nullptr;
 
@@ -45,8 +46,6 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 	FPathNode* _StartNode = FindCloseNode(_Start);
 	FPathNode* _EndNode = FindCloseNode(_End);
 
-	//LOGTEXT_ERROR(TEXT("길찾기 시작:Node(%s)위치(%s), 목표:Node(%s)위치(%s)"), *_StartNode->Matrix.ToString(), *_Start.ToString(), *_EndNode->Matrix.ToString(), *_End.ToString());
-
 	TArray<FPathNode*> _OpenList;
 	TArray<FPathNode*> _CloseList;
 	
@@ -62,7 +61,8 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 	_Dir.Add(FVector2D(1, -1));
 	_Dir.Add(FVector2D(-1, 1));
 	_Dir.Add(FVector2D(-1, -1));
-	// 현재 노드 = 출발
+
+	// 출발 노드부터 시작
 	_OpenList.Add(_StartNode);
 
 	FPathNode* _Current = nullptr;
@@ -124,8 +124,15 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 		_PathArray.Add(_Current->Location);
 		_Current = _Current->Parent;
 	}
+
+	for (int i = 0; i < _PathArray.Num() - 1; i++)
+	{
+		UKismetSystemLibrary::DrawDebugPoint(GetWorld(), _PathArray[i], 10.f, FLinearColor::Red, 100.f);
+		UKismetSystemLibrary::DrawDebugPoint(GetWorld(), _PathArray[i + 1], 10.f, FLinearColor::Red, 100.f);
+		UKismetSystemLibrary::DrawDebugLine(GetWorld(), _PathArray[i], _PathArray[i + 1], FLinearColor::Green, 3.f, 5.f);
+	}
+
 	return _PathArray;
-	
 }
 
 FPathNode* UPathManager::FindCloseNode(FVector _Location)

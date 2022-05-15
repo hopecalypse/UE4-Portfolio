@@ -83,7 +83,7 @@ void AObserverPawn::Rotate(float _DeltaTime)
 
 void AObserverPawn::ResetTransform()
 {
-	SetActorLocation(UDungeonManager::Instance()->ObserverOriginLocation);
+	SetActorLocation(UDungeonManager::Instance()->ObserverOriginLocation - FVector(0.f, 0.f, 6000.f));
 	SetActorRotation(UDungeonManager::Instance()->ObserverOriginRotation);
 }
 

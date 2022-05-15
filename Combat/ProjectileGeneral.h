@@ -50,6 +50,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess = "true"))
 	bool bDestroyOnHit;
 	bool bHitOnTerrain;
+	
 public:
 	void SetLifeTime(float _LifeTime) { LifeTime = _LifeTime; };
 	void SetAttackDamage(float _Damage) { AttackDamage = _Damage; bApplyAttackDamage = true; };

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DungeonManager.h"
 #include "UObject/NoExportTypes.h"
 #include "DungeonCell.generated.h"
 
@@ -12,6 +13,7 @@
 
 class UDungeonRoom;
 struct FPathNode;
+
 UCLASS()
 class PORTFOLIO_API UDungeonCell : public UObject
 {
@@ -19,26 +21,17 @@ class PORTFOLIO_API UDungeonCell : public UObject
 
 	// 좌표
 public:
-	FVector2D Matrix;
+	FMatrix2D Matrix;
 	FVector Location;
-	AActor* Visualizer;
 	UDungeonRoom* Room;
 
-	// 던전 변수(할당용)
+	// 던전 변수
 public:
-	bool bRoom;
-	bool bRoad;
-	bool bFloor;
-	bool bLeftWall;
-	bool bTopWall;
-	bool bRightWall;
-	bool bBottomWall;
-	bool bLeftWallSide;
-	bool bTopWallSide;
-	bool bRightWallSide;
-	bool bBottoWallSide;
+	bool bRoom, bRoad, bFloor;
+	bool bLeftWall, bTopWall, bRightWall, bBottomWall;
+	bool bLeftWallSide, bTopWallSide, bRightWallSide, bBottoWallSide;
 
-	// 던전 레벨 오브젝트들
+	// 던전 레벨 액터들
 public:
 	AActor* Floor;
 	AActor* LeftWall;
@@ -52,6 +45,10 @@ public:
 	// 길찾기 관련
 public:
 	TMap<FVector2D, FPathNode*> PathNodes;
+
+	// 디버그 관련
+public:
+	AActor* Visualizer;
 
 	// 초기화
 public:

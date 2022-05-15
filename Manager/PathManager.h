@@ -11,6 +11,7 @@
  */
 
 class UDungeonCell;
+
 USTRUCT(Atomic)
 struct FPathNode
 {
@@ -22,20 +23,16 @@ public:
 	
 	bool bObstacle;
 	int F;		// 최종 평가 비용
-	int G;		// 이동 비용
-	int H;		// 예상 이동 비용(거리)
+	int G;		// 현재 이동 비용
+	int H;		// 예상 이동 비용
 	FPathNode* Parent;
 
 	FPathNode()
-	{
-		
-	}
+	{ }
 	FPathNode(int _X, int _Y)
-	{
-		Matrix = FVector2D(_X, _Y);
-		Location = FVector(_Y * 150.f - 300.f, _X * 150.f - 300.f, 0.f);
-	}
-	
+		:Matrix(FVector2D(_X, _Y))
+		,Location(FVector(_Y * 150.f - 300.f, _X * 150.f - 300.f, 0.f))
+	{ }
 };
 
 

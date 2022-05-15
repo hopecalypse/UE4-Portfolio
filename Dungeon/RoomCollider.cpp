@@ -47,13 +47,14 @@ void ARoomCollider::OnOverlapPlayer(UPrimitiveComponent* OverlappedComponent, AA
 
 void ARoomCollider::OnEndOverlapPlayer(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	// ÆÐ½ºÆÄÀÎµù ½Ã½ºÅÛ ½Ã¿¬
+	return;
 	APlayableCharacter* _Player = Cast<APlayableCharacter>(OtherActor);
 	if(_Player != nullptr)
 	{
-		LOGTEXT_ERROR(TEXT("í”Œë ˆì´ì–´ ë£¸ ë‚˜ê°(%s)"), *Room->GetName());
 		if(Room != nullptr)
 		{
-			if(Room->GetName() == TEXT("None"))
+			if(Room->GetName().Contains(TEXT("None")))
 				return;
 			if(Room->bBossRoom || Room->bPlayerStart)
 				return;
@@ -63,6 +64,8 @@ void ARoomCollider::OnEndOverlapPlayer(UPrimitiveComponent* OverlappedComponent,
 			{
 				if(Room->Monsters[i] != nullptr)
 				{
+					if(Room->Monsters[i]->GetMonsterState() == EMonsterState::E_Dying)
+						continue;
 					AMonsterAIController* _AIC = Cast<AMonsterAIController>(Room->Monsters[i]->GetController());
 					_AIC->GetBlackboardComponent()->SetValueAsBool(TEXT("bTracingPlayer"), false);
 					//_AIC->GetBlackboardComponent()->SetValueAsObject(TEXT("PlayerActor"), nullptr);

@@ -17,6 +17,35 @@ class UDungeonCell;
  */
 
 USTRUCT(Atomic)
+struct FMatrix2D
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	int X;
+	int Y;
+
+	FMatrix2D()
+		:X(0)
+		,Y(0)
+	{}
+	FMatrix2D(int _X, int _Y)
+		:X(_X)
+		,Y(_Y)
+	{}
+	FMatrix2D operator+(const FMatrix2D& _Other) const
+	{
+		return FMatrix2D(X + _Other.X, Y + _Other.Y);
+	}
+	bool operator==(const FMatrix2D _Other) const
+	{
+		if(X == _Other.X && Y == _Other.Y)
+			return true;
+		else
+			return false;
+	}
+};
+
+USTRUCT(Atomic)
 struct FRect
 {
 	GENERATED_USTRUCT_BODY()
@@ -53,16 +82,11 @@ public:
 	bool bIsLeaf;
 
 	FTreeNode()
-	{
-		
-	}
+	{ }
 	FTreeNode(int _X, int _Y, int _Width, int _Height)
-	{
-		Parent = nullptr;
-		Left = nullptr;
-		Right = nullptr;
-		Rect = FRect(_X, _Y, _Width, _Height);
-	}
+		:Parent(nullptr), Left(nullptr), Right(nullptr)
+		,Rect(FRect(_X, _Y, _Width, _Height))
+	{ }
 };
 
 
@@ -98,7 +122,9 @@ public:
 	FTreeNode* RootNode;
 	int XSize;
 	int YSize;
-	TMap<FVector2D, UDungeonCell*> CellMap;
+	//TMap<FMatrix2D, UDungeonCell*> CellMap;
+	TArray<UDungeonCell*> CellList;
+	UDungeonCell* FindCell(FMatrix2D _Mat);
 	TArray<FTreeNode*> TreeNodeList;
 	TArray<TArray<FTreeNode*>> TreeDepthLists;
 	TArray<UDungeonRoom*> RoomList;
@@ -129,14 +155,14 @@ public:
 public:
 	void StartGenerateRoom();
 	void GenerateRoom(FTreeNode* _TreeNode);
-	bool IsNotRoom(FVector2D _Matrix);
+	bool IsNotRoom(FMatrix2D _Matrix);
 
 	// 4. 길 연결하기
 public:
 	void StartGenerateRoad();
 	void GenerateRoad(FTreeNode* _TreeNode);
 	FVector2D GetRectCenter(FRect _Rect);
-	bool IsNotRoad(FVector2D _Matrix);
+	bool IsNotRoad(FMatrix2D _Matrix);
 
 	// 5. Room들 분류, 진행 방향 설정
 public:

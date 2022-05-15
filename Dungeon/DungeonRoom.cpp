@@ -28,10 +28,10 @@ void UDungeonRoom::PlayerEnter(APlayableCharacter* _Player)
 	// if(this->bPlayerEntered)
 	// 	return;
 
-	LOGTEXT_ERROR(TEXT("플레이어 몬스터 방(%s) 처음 입장함"), *GetName());
+	//LOGTEXT_ERROR(TEXT("플레이어 몬스터 방(%s) 처음 입장함"), *GetName());
 	//bPlayerEntered = true;
-	if(GetName() == TEXT("None"))
-		return;
+	/*if(GetName() == TEXT("None"))
+		return;*/
 
 	if(this->Monsters.Num() == 0)
 		return;

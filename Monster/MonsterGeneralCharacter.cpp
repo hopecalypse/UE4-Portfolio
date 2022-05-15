@@ -153,7 +153,7 @@ void AMonsterGeneralCharacter::TickMove(float _DeltaTime)
 	{
 		FVector _Current = GetActorLocation();
 		_Current.Z = 0;
-		LOGTEXT_LOG(TEXT("[%s] 패스(%d) 남은 거리: %f"), *GetName(), PathList.Num(), FVector::Distance(_Current, CurrentPath));
+		//LOGTEXT_LOG(TEXT("[%s] 패스(%d) 남은 거리: %f"), *GetName(), PathList.Num(), FVector::Distance(_Current, CurrentPath));
 		// 1. 현재 PathNode에 도착했을 때
 		if(FVector::Distance(_Current, CurrentPath) < 10.f)
 		{
@@ -203,19 +203,19 @@ void AMonsterGeneralCharacter::AttackTrigger_FromNotify()
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), USoundManager::Instance()->Data->Monster_Attack, GetActorLocation(), GetActorRotation(), 1.f, 1.f, 0.f, USoundManager::Instance()->Data->Attenuation);
 	
 		// 디버그 구체 그리기
-#ifdef ENABLE_DRAW_DEBUG
-		FVector _Vec = GetActorForwardVector() * _AttackRange;	// 방향 벡터
-		FVector _Center = GetActorLocation() + _Vec * 0.5f;
-		float _HalfHegiht = _AttackRange * 0.5f + _AttackRadius;
-		DrawDebugCapsule(GetWorld(),
-			_Center,
-			_HalfHegiht,
-			_AttackRadius,
-			FRotationMatrix::MakeFromZ(_Vec).ToQuat(),
-			_bResult == true ? FColor::Red : FColor::White,
-			false,
-			1.f);
-#endif
+// #ifdef ENABLE_DRAW_DEBUG
+// 		FVector _Vec = GetActorForwardVector() * _AttackRange;	// 방향 벡터
+// 		FVector _Center = GetActorLocation() + _Vec * 0.5f;
+// 		float _HalfHegiht = _AttackRange * 0.5f + _AttackRadius;
+// 		DrawDebugCapsule(GetWorld(),
+// 			_Center,
+// 			_HalfHegiht,
+// 			_AttackRadius,
+// 			FRotationMatrix::MakeFromZ(_Vec).ToQuat(),
+// 			_bResult == true ? FColor::Red : FColor::White,
+// 			false,
+// 			1.f);
+// #endif
 	}
 	
 	// Projectile 있다면 생성하기
