@@ -35,6 +35,13 @@ public:
 	{ }
 };
 
+struct FPathNodePriority
+{
+	bool operator()(const FPathNode& _A, const FPathNode& _B) const
+	{
+		return _A.F < _B.F;
+	}
+};
 
 UCLASS()
 class PORTFOLIO_API UPathManager : public UObject

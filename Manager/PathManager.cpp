@@ -72,8 +72,6 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 	{
 		// 현재 노드(F값이 가장 작은 값 OpenList에서 꺼내기)
 		_Current = PopOpenList(&_OpenList);
-
-		//LOGTEXT_LOG(TEXT("길찾기중: 현재 노드=%s, 현재 OpenList갯수=%s"), *_Current->Matrix.ToString(), *FString::FromInt(_OpenList.Num()));
 		
 		// 도착 여부
 		if(_Current == _EndNode)
@@ -113,11 +111,14 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 			_CheckNode->H = (FMath::Abs(_EndNode->Matrix.X - _CheckNode->Matrix.X) * 10) + (FMath::Abs(_EndNode->Matrix.Y - _CheckNode->Matrix.Y) * 10);
 			_CheckNode->F = _CheckNode->G + _CheckNode->H;
 			_CheckNode->Parent = _Current;
-			_OpenList.AddUnique(_CheckNode);
+
+			// 리스트 구조 Heap으로 변경
+			//_OpenList.AddUnique(_CheckNode);
+			_OpenList.HeapPush(_CheckNode, FPathNodePriority());
 		}
 	}
 	
-	// 도착 노드로부터 거슬러 올라가는 게 경로(Pop으로 쓸 것)
+	// 도착 노드로부터 거슬러 올라가며 경로에 추가
 	TArray<FVector> _PathArray;
 	while (_Current != nullptr)
 	{
@@ -125,6 +126,7 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 		_Current = _Current->Parent;
 	}
 
+	// 시각화
 	for (int i = 0; i < _PathArray.Num() - 1; i++)
 	{
 		UKismetSystemLibrary::DrawDebugPoint(GetWorld(), _PathArray[i], 10.f, FLinearColor::Red, 100.f);
@@ -132,14 +134,16 @@ TArray<FVector> UPathManager::FindPath(FVector _Start, FVector _End)
 		UKismetSystemLibrary::DrawDebugLine(GetWorld(), _PathArray[i], _PathArray[i + 1], FLinearColor::Green, 3.f, 5.f);
 	}
 
+	// 경로 지점(FVector)들 반환
 	return _PathArray;
 }
 
 FPathNode* UPathManager::FindCloseNode(FVector _Location)
 {
+	// Input 위치에서 가장 가까운 PathNode 찾기
 	_Location.Z = 0;
 	FPathNode* _Close = nullptr;
-	float _Dist = 1000000000.f;
+	float _Dist = 100000000.f;
 	for(int i = 0; i < PathNodeArray.Num(); i++)
 	{
 		if(FVector::Distance(_Location, PathNodeArray[i]->Location) < _Dist)
@@ -149,30 +153,31 @@ FPathNode* UPathManager::FindCloseNode(FVector _Location)
 		}
 	}
 	if(_Close == nullptr)
-		LOGTEXT_ERROR(TEXT("!!!FindNode Null 오류!!!"));
+		LOGTEXT_ERROR(TEXT("!!!Error: FindNode Null!!!"));
 	return _Close;
 }
 
 FPathNode* UPathManager::PopOpenList(TArray<FPathNode*>* _OpenList)
 {
-	//LOGTEXT_LOG(TEXT("길찾기중: 오픈리스트 Pop 호출. 현재갯수:%d"), _OpenList->Num());
-	// OpenList에서 F값(코스트)가 가장 작은 노드 꺼내기
+	// OpenList에서 F(Cost)가 가장 작은 노드 꺼내기
 	if(_OpenList->Num() < 1)
 		return nullptr;
 	if(_OpenList->Num() == 1)
-	{
-		FPathNode* _Node = (*_OpenList)[0];
-		_OpenList->Empty();
-		return _Node;
-	}
-	
-	FPathNode* _Lowest = (*_OpenList)[0];
-	for(int i = 1; i < _OpenList->Num(); i++)
-	{
-		if((*_OpenList)[i]->F < _Lowest->F)
-			_Lowest = (*_OpenList)[i];
-	}
-	_OpenList->Remove(_Lowest);
-	return _Lowest;
+		return _OpenList->Pop();
+
+	// 기존 구조: 원소 모두 순회하며 가장 작은 값 찾기
+	// FPathNode* _Lowest = (*_OpenList)[0];
+	// for(int i = 1; i < _OpenList->Num(); i++)
+	// {
+	// 	if((*_OpenList)[i]->F < _Lowest->F)
+	// 		_Lowest = (*_OpenList)[i];
+	// }
+	// _OpenList->Remove(_Lowest);
+	//return _Lowest;
+
+	// 변경 이후: Heap 사용
+	FPathNode* _Min;
+	_OpenList->HeapPop(_Min, FPathNodePriority());
+	return _Min;
 }
 
